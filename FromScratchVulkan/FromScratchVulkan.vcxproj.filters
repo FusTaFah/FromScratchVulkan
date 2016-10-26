@@ -32,5 +32,8 @@
     <ClInclude Include="Shared.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="BUILD_OPTIONS.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

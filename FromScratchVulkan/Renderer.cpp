@@ -1,30 +1,50 @@
+#include "BUILD_OPTIONS.h"
+#include "Platform.h"
 #include "Renderer.h"
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
 #include <assert.h>
 #include "Shared.h"
-
-#ifdef _WIN32
-#include <windows.h>
-#endif
-
+#include "Window.h"
 
 Renderer::Renderer() {
-	_SetupDebug();
-	_InitInstance();
-	_InitDebug();
-	_InitDevice();
+	m_instance = VK_NULL_HANDLE;
+	m_gpu = VK_NULL_HANDLE;
+	m_device = VK_NULL_HANDLE;
+	m_queue = VK_NULL_HANDLE;
+	m_graphics_family_index = 0;
+	m_instance_layer_list = {};
+	m_instance_extention_list = {};
+	m_device_layer_list = {};
+	m_device_extention_list = {};
+	m_debug_report = VK_NULL_HANDLE;
+	m_debug_report_callback_create_info = {};
+	m_window = nullptr;
+
+	SetupDebug();
+	InitInstance();
+	InitDebug();
+	InitDevice();
 }
 
 Renderer::~Renderer() {
-	_DeInitDevice();
-	_DeInitDebug();
-	_DeInitInstance();
+	DeInitDevice();
+	DeInitDebug();
+	DeInitInstance();
 	
 }
 
-void Renderer::_InitInstance()
+Window * Renderer::CreateVulkanWindow(uint32_t size_x, uint32_t size_y, std::string name) {
+	m_window = new Window;
+	return m_window;
+}
+
+bool Renderer::Run() {
+
+}
+
+void Renderer::InitInstance()
 {
 	//remember to always default initialise with the struct operator{}
 	VkApplicationInfo appInfo{};
@@ -36,40 +56,40 @@ void Renderer::_InitInstance()
 	VkInstanceCreateInfo vkInfo{};
 	vkInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 	vkInfo.pApplicationInfo = &appInfo;
-	vkInfo.enabledLayerCount = _instance_layer_list.size();
-	vkInfo.ppEnabledLayerNames = _instance_layer_list.data();
-	vkInfo.enabledExtensionCount = _instance_extention_list.size();
-	vkInfo.ppEnabledExtensionNames = _instance_extention_list.data();
-	vkInfo.pNext = &debug_report_callback_create_info;
+	vkInfo.enabledLayerCount = m_instance_layer_list.size();
+	vkInfo.ppEnabledLayerNames = m_instance_layer_list.data();
+	vkInfo.enabledExtensionCount = m_instance_extention_list.size();
+	vkInfo.ppEnabledExtensionNames = m_instance_extention_list.data();
+	vkInfo.pNext = &m_debug_report_callback_create_info;
 
-	ErrorCheck(vkCreateInstance(&vkInfo, nullptr, &_instance));
+	ErrorCheck(vkCreateInstance(&vkInfo, nullptr, &m_instance));
 }
 
-void Renderer::_DeInitInstance() {
-	vkDestroyInstance(_instance, nullptr);
-	_instance = nullptr;
+void Renderer::DeInitInstance() {
+	vkDestroyInstance(m_instance, nullptr);
+	m_instance = nullptr;
 }
 
-void Renderer::_InitDevice() {
+void Renderer::InitDevice() {
 	{
 		uint32_t gpu_count = 0;
-		vkEnumeratePhysicalDevices(_instance, &gpu_count, nullptr);
+		vkEnumeratePhysicalDevices(m_instance, &gpu_count, nullptr);
 		std::vector<VkPhysicalDevice> gpu_list(gpu_count);
-		vkEnumeratePhysicalDevices(_instance, &gpu_count, gpu_list.data());
-		_gpu = gpu_list[0];
+		vkEnumeratePhysicalDevices(m_instance, &gpu_count, gpu_list.data());
+		m_gpu = gpu_list[0];
 	}
 	{
 		uint32_t family_count = 0;
-		vkGetPhysicalDeviceQueueFamilyProperties(_gpu, &family_count, nullptr);
+		vkGetPhysicalDeviceQueueFamilyProperties(m_gpu, &family_count, nullptr);
 		std::vector<VkQueueFamilyProperties> family_property_list(family_count);
-		vkGetPhysicalDeviceQueueFamilyProperties(_gpu, &family_count, family_property_list.data());
+		vkGetPhysicalDeviceQueueFamilyProperties(m_gpu, &family_count, family_property_list.data());
 
 		bool found = false;
 
 		for (uint32_t i = 0; i < family_property_list.size(); i++) {
 			if (family_property_list[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
 				found = true;
-				_graphics_family_index = i;
+				m_graphics_family_index = i;
 				break;
 			}
 		}
@@ -93,9 +113,9 @@ void Renderer::_InitDevice() {
 
 	{
 		uint32_t layer_count = 0;
-		vkEnumerateDeviceLayerProperties(_gpu, &layer_count, nullptr);
+		vkEnumerateDeviceLayerProperties(m_gpu, &layer_count, nullptr);
 		std::vector<VkLayerProperties> layer_properties(layer_count);
-		vkEnumerateDeviceLayerProperties(_gpu, &layer_count, layer_properties.data());
+		vkEnumerateDeviceLayerProperties(m_gpu, &layer_count, layer_properties.data());
 		std::cout << "Device Layers:" << std::endl;
 		for (auto p = layer_properties.begin(); p != layer_properties.end(); ++p) {
 			std::cout << p->layerName << "\t\t | " << p->description << std::endl;
@@ -106,7 +126,7 @@ void Renderer::_InitDevice() {
 	float queue_priorities[]{ 1.0f };
 	VkDeviceQueueCreateInfo device_queue_info{};
 	device_queue_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-	device_queue_info.queueFamilyIndex = _graphics_family_index;
+	device_queue_info.queueFamilyIndex = m_graphics_family_index;
 	device_queue_info.queueCount = 1;
 	device_queue_info.pQueuePriorities = queue_priorities;
 
@@ -114,20 +134,22 @@ void Renderer::_InitDevice() {
 	device_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 	device_info.queueCreateInfoCount = 1;
 	device_info.pQueueCreateInfos = &device_queue_info;
-	device_info.enabledLayerCount = _device_layer_list.size();
-	device_info.ppEnabledLayerNames = _device_layer_list.data();
-	device_info.enabledExtensionCount = _device_extention_list.size();
-	device_info.ppEnabledExtensionNames = _device_extention_list.data();
+	device_info.enabledLayerCount = m_device_layer_list.size();
+	device_info.ppEnabledLayerNames = m_device_layer_list.data();
+	device_info.enabledExtensionCount = m_device_extention_list.size();
+	device_info.ppEnabledExtensionNames = m_device_extention_list.data();
 
-	ErrorCheck(vkCreateDevice(_gpu, &device_info, nullptr, &_device));
+	ErrorCheck(vkCreateDevice(m_gpu, &device_info, nullptr, &m_device));
 
-	vkGetDeviceQueue(_device, _graphics_family_index, 0, &_queue);
+	vkGetDeviceQueue(m_device, m_graphics_family_index, 0, &m_queue);
 }
 
-void Renderer::_DeInitDevice() {
-	vkDestroyDevice(_device, nullptr);
-	_device = nullptr;
+void Renderer::DeInitDevice() {
+	vkDestroyDevice(m_device, nullptr);
+	m_device = nullptr;
 }
+
+#if BUILD_OPTIONS_DEBUG
 
 VKAPI_ATTR VkBool32 VKAPI_CALL
 VulkanDebugCallback(
@@ -171,10 +193,10 @@ VulkanDebugCallback(
 	return false;
 }
 
-void Renderer::_SetupDebug() {
-	debug_report_callback_create_info.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
-	debug_report_callback_create_info.pfnCallback = VulkanDebugCallback;
-	debug_report_callback_create_info.flags =
+void Renderer::SetupDebug() {
+	m_debug_report_callback_create_info.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
+	m_debug_report_callback_create_info.pfnCallback = VulkanDebugCallback;
+	m_debug_report_callback_create_info.flags =
 		VK_DEBUG_REPORT_INFORMATION_BIT_EXT |
 		VK_DEBUG_REPORT_WARNING_BIT_EXT |
 		VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT |
@@ -183,8 +205,8 @@ void Renderer::_SetupDebug() {
 		VK_DEBUG_REPORT_FLAG_BITS_MAX_ENUM_EXT |
 		0;
 
-	_instance_layer_list.push_back("VK_LAYER_LUNARG_standard_validation");
-	_instance_extention_list.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
+	m_instance_layer_list.push_back("VK_LAYER_LUNARG_standard_validation");
+	m_instance_extention_list.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
 	/*VK_LAYER_LUNARG_api_dump
 	VK_LAYER_LUNARG_core_validation
 	VK_LAYER_LUNARG_image
@@ -198,24 +220,32 @@ void Renderer::_SetupDebug() {
 	VK_LAYER_RENDERDOC_Capture
 	VK_LAYER_VALVE_steam_overlay
 	VK_LAYER_LUNARG_standard_validation*/
-	_device_layer_list.push_back("VK_LAYER_LUNARG_standard_validation");
+	m_device_layer_list.push_back("VK_LAYER_LUNARG_standard_validation");
 }
 
 PFN_vkCreateDebugReportCallbackEXT fvkCreateDebugReportCallbackEXT = nullptr;
 PFN_vkDestroyDebugReportCallbackEXT fvkDestroyDebugReportCallbackEXT = nullptr;
 
-void Renderer::_InitDebug() {
-	fvkCreateDebugReportCallbackEXT = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(_instance, "vkCreateDebugReportCallbackEXT");
-	fvkDestroyDebugReportCallbackEXT = (PFN_vkDestroyDebugReportCallbackEXT)vkGetInstanceProcAddr(_instance, "vkDestroyDebugReportCallbackEXT");
+void Renderer::InitDebug() {
+	fvkCreateDebugReportCallbackEXT = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(m_instance, "vkCreateDebugReportCallbackEXT");
+	fvkDestroyDebugReportCallbackEXT = (PFN_vkDestroyDebugReportCallbackEXT)vkGetInstanceProcAddr(m_instance, "vkDestroyDebugReportCallbackEXT");
 	if (fvkCreateDebugReportCallbackEXT == nullptr || fvkDestroyDebugReportCallbackEXT == nullptr) {
 		assert(0 && "Vulkan ERROR: Can't fetch debug function pointers");
 		std::exit(-1);
 	}
 
-	fvkCreateDebugReportCallbackEXT(_instance, &debug_report_callback_create_info, nullptr, &_debug_report);
+	fvkCreateDebugReportCallbackEXT(m_instance, &m_debug_report_callback_create_info, nullptr, &m_debug_report);
 }
 
-void Renderer::_DeInitDebug() {
-	fvkDestroyDebugReportCallbackEXT(_instance, _debug_report, nullptr);
-	_debug_report = VK_NULL_HANDLE;
+void Renderer::DeInitDebug() {
+	fvkDestroyDebugReportCallbackEXT(m_instance, m_debug_report, nullptr);
+	m_debug_report = VK_NULL_HANDLE;
 }
+
+#else
+
+void Renderer::_InitDebug() {}
+void Renderer::_SetupDebug() {}
+void Renderer::_DeInitDebug() {}
+
+#endif // BUILD_OPTIONS_DEBUG

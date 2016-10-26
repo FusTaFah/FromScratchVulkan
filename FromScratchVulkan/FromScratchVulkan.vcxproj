@@ -138,6 +138,7 @@
     <ClCompile Include="Shared.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BUILD_OPTIONS.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Shared.h" />
   </ItemGroup>

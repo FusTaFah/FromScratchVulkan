@@ -1,0 +1,4 @@
+#pragma once
+
+#define BUILD_OPTIONS_DEBUG 1
+#define BUILD_OPTIONS_RUNTIME_DEBUG 1

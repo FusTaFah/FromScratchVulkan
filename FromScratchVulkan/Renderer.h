@@ -1,32 +1,38 @@
 #pragma once
 
+#include "Platform.h"
 #include <vector>
-#include <vulkan\vulkan.h>
+
+class Window;
 
 class Renderer {
 public:
 	Renderer();
 	~Renderer();
+
+	Window * CreateVulkanWindow(uint32_t size_x, uint32_t size_y, std::string name);
+	bool Run();
 //private:
-	void _InitInstance();
-	void _DeInitInstance();
+	void InitInstance();
+	void DeInitInstance();
 
-	void _InitDevice();
-	void _DeInitDevice();
+	void InitDevice();
+	void DeInitDevice();
 
-	void _SetupDebug();
-	void _InitDebug();
-	void _DeInitDebug();
+	void SetupDebug();
+	void InitDebug();
+	void DeInitDebug();
 
-	VkInstance _instance = VK_NULL_HANDLE;
-	VkPhysicalDevice _gpu = VK_NULL_HANDLE;
-	VkDevice _device = VK_NULL_HANDLE;
-	VkQueue _queue = VK_NULL_HANDLE;
-	uint32_t _graphics_family_index = 0;
-	std::vector<const char *> _instance_layer_list = {};
-	std::vector<const char *> _instance_extention_list = {};
-	std::vector<const char *> _device_layer_list = {};
-	std::vector<const char *> _device_extention_list = {};
-	VkDebugReportCallbackEXT _debug_report = VK_NULL_HANDLE;
-	VkDebugReportCallbackCreateInfoEXT debug_report_callback_create_info = {};
+	VkInstance m_instance;
+	VkPhysicalDevice m_gpu;
+	VkDevice m_device;
+	VkQueue m_queue;
+	uint32_t m_graphics_family_index;
+	std::vector<const char *> m_instance_layer_list;
+	std::vector<const char *> m_instance_extention_list;
+	std::vector<const char *> m_device_layer_list;
+	std::vector<const char *> m_device_extention_list;
+	VkDebugReportCallbackEXT m_debug_report;
+	VkDebugReportCallbackCreateInfoEXT m_debug_report_callback_create_info;
+	Window * m_window;
 };

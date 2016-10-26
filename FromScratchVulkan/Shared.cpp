@@ -1,4 +1,7 @@
+#include "BUILD_OPTIONS.h"
 #include "Shared.h"
+
+#if BUILD_OPTIONS_RUNTIME_DEBUG
 
 void ErrorCheck(VkResult result) {
 	if (result < 0) {
@@ -68,3 +71,9 @@ void ErrorCheck(VkResult result) {
 		assert(0 && "Vulkan Runtime Error");
 	}
 }
+
+#else
+
+void Errcheck(VkResult error)() {}
+
+#endif // BUILD_OPTIONS_RUNTIME_DEBUG
