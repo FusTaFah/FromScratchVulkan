@@ -29,19 +29,22 @@ Renderer::Renderer() {
 }
 
 Renderer::~Renderer() {
+	delete m_window;
 	DeInitDevice();
 	DeInitDebug();
 	DeInitInstance();
-	
 }
 
 Window * Renderer::CreateVulkanWindow(uint32_t size_x, uint32_t size_y, std::string name) {
-	m_window = new Window;
+	m_window = new Window(size_x, size_y, name);
 	return m_window;
 }
 
 bool Renderer::Run() {
-
+	if (m_window != nullptr) {
+		return m_window->Update();
+	}
+	return true;
 }
 
 void Renderer::InitInstance()
