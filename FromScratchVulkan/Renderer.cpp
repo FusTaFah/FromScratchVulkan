@@ -3,6 +3,7 @@
 #include <iostream>
 #include <sstream>
 #include <assert.h>
+#include "Shared.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -25,6 +26,7 @@ Renderer::~Renderer() {
 
 void Renderer::_InitInstance()
 {
+	//remember to always default initialise with the struct operator{}
 	VkApplicationInfo appInfo{};
 	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 	appInfo.apiVersion = VK_MAKE_VERSION(1, 0, 3);
@@ -40,11 +42,7 @@ void Renderer::_InitInstance()
 	vkInfo.ppEnabledExtensionNames = _instance_extention_list.data();
 	vkInfo.pNext = &debug_report_callback_create_info;
 
-	VkResult res = vkCreateInstance(&vkInfo, nullptr, &_instance);
-	if (res != VK_SUCCESS) {
-		assert(0 && "Vulkan instance creation error");
-		std::exit(res);
-	}
+	ErrorCheck(vkCreateInstance(&vkInfo, nullptr, &_instance));
 }
 
 void Renderer::_DeInitInstance() {
@@ -121,11 +119,9 @@ void Renderer::_InitDevice() {
 	device_info.enabledExtensionCount = _device_extention_list.size();
 	device_info.ppEnabledExtensionNames = _device_extention_list.data();
 
-	VkResult res = vkCreateDevice(_gpu, &device_info, nullptr, &_device);
-	if (res != VK_SUCCESS) {
-		assert(0 && "Vulkan ERROR: Could not create device");
-		std::exit(res);
-	}
+	ErrorCheck(vkCreateDevice(_gpu, &device_info, nullptr, &_device));
+
+	vkGetDeviceQueue(_device, _graphics_family_index, 0, &_queue);
 }
 
 void Renderer::_DeInitDevice() {
@@ -221,5 +217,5 @@ void Renderer::_InitDebug() {
 
 void Renderer::_DeInitDebug() {
 	fvkDestroyDebugReportCallbackEXT(_instance, _debug_report, nullptr);
-	_debug_report = nullptr;
+	_debug_report = VK_NULL_HANDLE;
 }
