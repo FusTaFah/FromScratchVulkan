@@ -22,6 +22,8 @@ public:
 	const uint32_t GetVulkanGraphicsQueueFamilyIndex() const;
 
 private:
+	void SetupLayersAndExtentions();
+
 	void InitInstance();
 	void DeInitInstance();
 

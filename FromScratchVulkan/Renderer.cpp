@@ -23,6 +23,7 @@ Renderer::Renderer() {
 	m_debug_report_callback_create_info = {};
 	m_window = nullptr;
 
+	SetupLayersAndExtentions();
 	SetupDebug();
 	InitInstance();
 	InitDebug();
@@ -37,7 +38,7 @@ Renderer::~Renderer() {
 }
 
 Window * Renderer::CreateVulkanWindow(uint32_t size_x, uint32_t size_y, std::string name) {
-	m_window = new Window(size_x, size_y, name);
+	m_window = new Window(this, size_x, size_y, name);
 	return m_window;
 }
 
@@ -70,6 +71,12 @@ const VkPhysicalDeviceProperties & Renderer::GetVulkanPhysicalDeviceProperties()
 
 const uint32_t Renderer::GetVulkanGraphicsQueueFamilyIndex() const {
 	return m_graphics_family_index;
+}
+
+void Renderer::SetupLayersAndExtentions() {
+//	m_instance_extention_list.push_back(VK_KHR_DISPLAY_EXTENSION_NAME);
+	m_instance_extention_list.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
+	m_instance_extention_list.push_back(PLATFORM_SURFACE_EXTENTION_NAME);
 }
 
 void Renderer::InitInstance()

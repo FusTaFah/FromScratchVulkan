@@ -98,8 +98,11 @@ void Window::UpdateOSWindow() {
 }
 
 void Window::InitOSSurface() {
-
-	vkCreateWin32SurfaceKHR(m_renderer->GetVulkanInstance(), , nullptr);
+	VkWin32SurfaceCreateInfoKHR win32_surface_create_info{};
+	win32_surface_create_info.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+	win32_surface_create_info.hinstance = m_win32_instance;
+	win32_surface_create_info.hwnd = m_win32_window;
+	vkCreateWin32SurfaceKHR(m_renderer->GetVulkanInstance(), &win32_surface_create_info, nullptr, &m_surface);
 }
 
 #endif

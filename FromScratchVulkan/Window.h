@@ -17,6 +17,9 @@ private:
 	void UpdateOSWindow();
 	void InitOSSurface();
 
+	void InitSurface();
+	void DeInitSurface();
+
 	Renderer * m_renderer;
 
 	VkSurfaceKHR m_surface;
@@ -24,6 +27,9 @@ private:
 	uint32_t m_surface_size_x = 512;
 	uint32_t m_surface_size_y = 512;
 	std::string m_window_name;
+
+	VkSurfaceCapabilitiesKHR m_surface_capabilities;
+	VkSurfaceFormatKHR m_surface_format;
 
 	bool m_running = true;
 
