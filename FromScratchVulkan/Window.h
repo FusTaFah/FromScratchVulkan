@@ -13,7 +13,7 @@ private:
 	void InitOSWindow();
 	void DeInitOSWindow();
 	void UpdateOSWindow();
-	void InitSurface();
+	void InitOSSurface();
 
 	uint32_t m_surface_size_x = 512;
 	uint32_t m_surface_size_y = 512;
