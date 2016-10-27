@@ -1,6 +1,7 @@
 #include "BUILD_OPTIONS.h"
 #include "Platform.h"
 #include "Window.h"
+#include "Renderer.h"
 #include <assert.h>
 
 #ifdef VK_USE_PLATFORM_WIN32_KHR
@@ -94,6 +95,11 @@ void Window::UpdateOSWindow() {
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
+}
+
+void Window::InitOSSurface() {
+
+	vkCreateWin32SurfaceKHR(m_renderer->GetVulkanInstance(), , nullptr);
 }
 
 #endif

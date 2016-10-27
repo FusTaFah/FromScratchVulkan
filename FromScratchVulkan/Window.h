@@ -3,9 +3,11 @@
 #include "Platform.h"
 #include <string>
 
+class Renderer;
+
 class Window {
 public:
-	Window(uint32_t size_x, uint32_t size_y, std::string name);
+	Window(Renderer * renderer, uint32_t size_x, uint32_t size_y, std::string name);
 	~Window();
 	void Close();
 	bool Update();
@@ -14,6 +16,10 @@ private:
 	void DeInitOSWindow();
 	void UpdateOSWindow();
 	void InitOSSurface();
+
+	Renderer * m_renderer;
+
+	VkSurfaceKHR m_surface;
 
 	uint32_t m_surface_size_x = 512;
 	uint32_t m_surface_size_y = 512;
