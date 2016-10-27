@@ -15,6 +15,11 @@ public:
 
 	//getters
 	const VkInstance GetVulkanInstance() const;
+	const VkPhysicalDevice GetVulkanPhysicalDevice() const;
+	const VkDevice GetVulkanDevice() const;
+	const VkQueue GetVulkanQueue() const;
+	const VkPhysicalDeviceProperties & GetVulkanPhysicalDeviceProperties() const;
+	const uint32_t GetVulkanGraphicsQueueFamilyIndex() const;
 
 private:
 	void InitInstance();

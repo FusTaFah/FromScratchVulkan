@@ -48,6 +48,30 @@ bool Renderer::Run() {
 	return true;
 }
 
+const VkInstance Renderer::GetVulkanInstance() const {
+	return m_instance;
+}
+
+const VkPhysicalDevice Renderer::GetVulkanPhysicalDevice() const {
+	return m_gpu;
+}
+
+const VkDevice Renderer::GetVulkanDevice() const {
+	return m_device;
+}
+
+const VkQueue Renderer::GetVulkanQueue() const {
+	return m_queue;
+}
+
+const VkPhysicalDeviceProperties & Renderer::GetVulkanPhysicalDeviceProperties() const {
+	return m_gpu_properties;
+}
+
+const uint32_t Renderer::GetVulkanGraphicsQueueFamilyIndex() const {
+	return m_graphics_family_index;
+}
+
 void Renderer::InitInstance()
 {
 	//remember to always default initialise with the struct operator{}
