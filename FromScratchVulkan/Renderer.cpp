@@ -13,6 +13,7 @@ Renderer::Renderer() {
 	m_gpu = VK_NULL_HANDLE;
 	m_device = VK_NULL_HANDLE;
 	m_queue = VK_NULL_HANDLE;
+	m_gpu_properties = {};
 	m_graphics_family_index = 0;
 	m_instance_layer_list = {};
 	m_instance_extention_list = {};
@@ -80,6 +81,7 @@ void Renderer::InitDevice() {
 		std::vector<VkPhysicalDevice> gpu_list(gpu_count);
 		vkEnumeratePhysicalDevices(m_instance, &gpu_count, gpu_list.data());
 		m_gpu = gpu_list[0];
+		vkGetPhysicalDeviceProperties(m_gpu, &m_gpu_properties);
 	}
 	{
 		uint32_t family_count = 0;

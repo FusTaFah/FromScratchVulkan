@@ -12,7 +12,11 @@ public:
 
 	Window * CreateVulkanWindow(uint32_t size_x, uint32_t size_y, std::string name);
 	bool Run();
-//private:
+
+	//getters
+	const VkInstance GetVulkanInstance() const;
+
+private:
 	void InitInstance();
 	void DeInitInstance();
 
