@@ -31,6 +31,7 @@ private:
 	VkPhysicalDevice m_gpu;
 	VkDevice m_device;
 	VkQueue m_queue;
+	VkPhysicalDeviceProperties	m_gpu_properties;
 	uint32_t m_graphics_family_index;
 	std::vector<const char *> m_instance_layer_list;
 	std::vector<const char *> m_instance_extention_list;
