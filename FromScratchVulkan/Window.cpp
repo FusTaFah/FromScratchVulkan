@@ -17,9 +17,11 @@ Window::Window(Renderer * renderer, uint32_t size_x, uint32_t size_y, std::strin
 	InitOSWindow();
 	InitSurface();
 	InitSwapchain();
+	InitSwapchainImages();
 }
 
 Window::~Window() {
+	DeInitSwapchainImages();
 	DeInitSwapchain();
 	DeInitSurface();
 	DeInitOSWindow();
@@ -123,4 +125,36 @@ void Window::InitSwapchain() {
 
 void Window::DeInitSwapchain() {
 	vkDestroySwapchainKHR(m_renderer->GetVulkanDevice(), m_swapchain, nullptr);
+}
+
+void Window::InitSwapchainImages() {
+	m_swapchain_images.resize(m_swapchain_image_count);
+	m_swapchain_image_views.resize(m_swapchain_image_count);
+
+	ErrorCheck(vkGetSwapchainImagesKHR(m_renderer->GetVulkanDevice(), m_swapchain, &m_swapchain_image_count, m_swapchain_images.data()));
+	for (uint32_t i = 0; i < m_swapchain_image_count; i++) {
+		VkImageViewCreateInfo image_view_create_info{};
+		image_view_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		image_view_create_info.image = m_swapchain_images[i];
+		image_view_create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		image_view_create_info.format = m_surface_format.format;
+		image_view_create_info.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+		image_view_create_info.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+		image_view_create_info.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+		image_view_create_info.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+		image_view_create_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		image_view_create_info.subresourceRange.baseMipLevel = 0;
+		image_view_create_info.subresourceRange.levelCount = 1;
+		image_view_create_info.subresourceRange.baseArrayLayer = 0;
+		image_view_create_info.subresourceRange.layerCount = 1;
+
+		ErrorCheck(vkCreateImageView(m_renderer->GetVulkanDevice(), &image_view_create_info, nullptr, &m_swapchain_image_views[i]));
+	}
+}
+
+void Window::DeInitSwapchainImages() {
+	std::vector<VkImageView>::iterator iter;
+	for (iter = m_swapchain_image_views.begin(); iter != m_swapchain_image_views.end(); ++iter) {
+		vkDestroyImageView(m_renderer->GetVulkanDevice(), *iter, nullptr);
+	}
 }
