@@ -77,6 +77,7 @@ void Renderer::SetupLayersAndExtentions() {
 //	m_instance_extention_list.push_back(VK_KHR_DISPLAY_EXTENSION_NAME);
 	m_instance_extention_list.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
 	m_instance_extention_list.push_back(PLATFORM_SURFACE_EXTENTION_NAME);
+	m_device_extention_list.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 }
 
 void Renderer::InitInstance()
