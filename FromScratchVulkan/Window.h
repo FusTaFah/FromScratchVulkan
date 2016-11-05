@@ -27,6 +27,11 @@ private:
 	void InitSwapchainImages();
 	void DeInitSwapchainImages();
 
+	void InitDepthBuffer();
+	void DeInitDepthBuffer();
+
+	bool memory_types_from_properties(uint32_t type_bits, VkFlags requirements_mask, uint32_t * typeIndex, VkPhysicalDeviceMemoryProperties memory_properties);
+
 	Renderer * m_renderer;
 
 	VkSurfaceKHR m_surface;
@@ -43,6 +48,11 @@ private:
 
 	std::vector<VkImage> m_swapchain_images;
 	std::vector<VkImageView> m_swapchain_image_views;
+
+	VkImage m_image;
+	VkImageView m_image_view;
+
+	VkDeviceMemory m_device_memory;
 
 	bool m_running = true;
 

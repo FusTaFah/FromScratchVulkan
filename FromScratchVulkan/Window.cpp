@@ -18,9 +18,11 @@ Window::Window(Renderer * renderer, uint32_t size_x, uint32_t size_y, std::strin
 	InitSurface();
 	InitSwapchain();
 	InitSwapchainImages();
+	InitDepthBuffer();
 }
 
 Window::~Window() {
+	DeInitDepthBuffer();
 	DeInitSwapchainImages();
 	DeInitSwapchain();
 	DeInitSurface();
@@ -157,4 +159,78 @@ void Window::DeInitSwapchainImages() {
 	for (iter = m_swapchain_image_views.begin(); iter != m_swapchain_image_views.end(); ++iter) {
 		vkDestroyImageView(m_renderer->GetVulkanDevice(), *iter, nullptr);
 	}
+}
+
+void Window::InitDepthBuffer() {
+	VkImageCreateInfo image_create_info{};
+	image_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+	image_create_info.pNext = VK_NULL_HANDLE;
+	image_create_info.imageType = VK_IMAGE_TYPE_2D;
+	image_create_info.format = VK_FORMAT_D16_UNORM;
+	image_create_info.extent.width = m_surface_size_x;
+	image_create_info.extent.height = m_surface_size_y;
+	image_create_info.extent.depth = 1;
+	image_create_info.mipLevels = 1;
+	image_create_info.arrayLayers = 1;
+	image_create_info.samples = VK_SAMPLE_COUNT_1_BIT;
+	image_create_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	image_create_info.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+	image_create_info.queueFamilyIndexCount = 0;
+	image_create_info.pQueueFamilyIndices = nullptr;
+	image_create_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+	image_create_info.flags = 0;
+
+	vkCreateImage(m_renderer->GetVulkanDevice(), &image_create_info, VK_NULL_HANDLE, &m_image);
+
+	VkMemoryRequirements memreqs;
+	vkGetImageMemoryRequirements(m_renderer->GetVulkanDevice(), m_image, &memreqs);
+	VkMemoryAllocateInfo memory_allocate_info{};
+	memory_allocate_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	memory_allocate_info.pNext = VK_NULL_HANDLE;
+	memory_allocate_info.allocationSize = memreqs.size;
+	memory_allocate_info.memoryTypeIndex = memory_types_from_properties(memreqs.memoryTypeBits, 0, &memory_allocate_info.memoryTypeIndex, m_renderer->GetPhysicalDeviceMemoryProperties());
+
+	ErrorCheck(vkAllocateMemory(m_renderer->GetVulkanDevice(), &memory_allocate_info, nullptr, &m_device_memory));
+
+	ErrorCheck(vkBindImageMemory(m_renderer->GetVulkanDevice(), m_image, m_device_memory, 0));
+
+	VkImageViewCreateInfo image_view_create_info{};
+	image_view_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+	image_view_create_info.flags = VK_NULL_HANDLE;
+	image_view_create_info.image = m_image;
+	image_view_create_info.format = VK_FORMAT_D16_UNORM;
+	image_view_create_info.components.r = VK_COMPONENT_SWIZZLE_R;
+	image_view_create_info.components.g = VK_COMPONENT_SWIZZLE_G;
+	image_view_create_info.components.b = VK_COMPONENT_SWIZZLE_B;
+	image_view_create_info.components.a = VK_COMPONENT_SWIZZLE_A;
+	image_view_create_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+	image_view_create_info.subresourceRange.baseMipLevel = 0;
+	image_view_create_info.subresourceRange.levelCount = 1;
+	image_view_create_info.subresourceRange.baseArrayLayer = 0;
+	image_view_create_info.subresourceRange.layerCount = 1;
+	image_view_create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
+	image_view_create_info.flags = 0;
+
+	ErrorCheck(vkCreateImageView(m_renderer->GetVulkanDevice(), &image_view_create_info, nullptr, &m_image_view));
+}
+
+void Window::DeInitDepthBuffer() {
+	vkDestroyImageView(m_renderer->GetVulkanDevice(), m_image_view, nullptr);
+	vkDestroyImage(m_renderer->GetVulkanDevice(), m_image, nullptr);
+	vkFreeMemory(m_renderer->GetVulkanDevice(), m_device_memory, nullptr);
+}
+
+bool Window::memory_types_from_properties(uint32_t type_bits, VkFlags requirements_mask, uint32_t * typeIndex, VkPhysicalDeviceMemoryProperties memory_properties) {
+	for (uint32_t i = 0; i < memory_properties.memoryTypeCount; i++) {
+		if ((type_bits & 1) == 1) {
+			// Type is available, does it match user properties?
+			if ((memory_properties.memoryTypes[i].propertyFlags &
+				requirements_mask) == requirements_mask) {
+				*typeIndex = i;
+				return true;
+			}
+		}
+		type_bits >>= 1;
+	}
+	return false;
 }
