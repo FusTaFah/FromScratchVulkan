@@ -2,7 +2,6 @@
 #include "Renderer.h"
 #include <assert.h>
 #include "Shared.h"
-#include <glm\matrix.hpp>
 
 Window::Window(Renderer * renderer, uint32_t size_x, uint32_t size_y, std::string name) :
 	m_surface_size_x(size_x),
@@ -222,6 +221,7 @@ void Window::DeInitDepthBuffer() {
 }
 
 void Window::InitUniformBuffer() {
+	glm::mat4 perspective_matrix = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f);
 
 }
 
