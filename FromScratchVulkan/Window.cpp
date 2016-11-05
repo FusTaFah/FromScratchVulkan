@@ -2,6 +2,7 @@
 #include "Renderer.h"
 #include <assert.h>
 #include "Shared.h"
+#include <glm\matrix.hpp>
 
 Window::Window(Renderer * renderer, uint32_t size_x, uint32_t size_y, std::string name) :
 	m_surface_size_x(size_x),
@@ -218,6 +219,14 @@ void Window::DeInitDepthBuffer() {
 	vkDestroyImageView(m_renderer->GetVulkanDevice(), m_image_view, nullptr);
 	vkDestroyImage(m_renderer->GetVulkanDevice(), m_image, nullptr);
 	vkFreeMemory(m_renderer->GetVulkanDevice(), m_device_memory, nullptr);
+}
+
+void Window::InitUniformBuffer() {
+
+}
+
+void Window::DeInitUniformBuffer() {
+
 }
 
 bool Window::memory_types_from_properties(uint32_t type_bits, VkFlags requirements_mask, uint32_t * typeIndex, VkPhysicalDeviceMemoryProperties memory_properties) {

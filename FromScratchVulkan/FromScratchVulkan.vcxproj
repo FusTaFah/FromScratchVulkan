@@ -69,19 +69,19 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\VulkanSDK\1.0.30.0\Include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\VulkanSDK\1.0.30.0\Include;C:\Users\mfade\Documents\Visual Studio 2015\Projects\FromScratchVulkan\glm;$(IncludePath)</IncludePath>
     <LibraryPath>C:\VulkanSDK\1.0.30.0\Bin32;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>C:\VulkanSDK\1.0.30.0\Include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\VulkanSDK\1.0.30.0\Include;C:\Users\mfade\Documents\Visual Studio 2015\Projects\FromScratchVulkan\glm;$(IncludePath)</IncludePath>
     <LibraryPath>C:\VulkanSDK\1.0.30.0\Bin32;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\VulkanSDK\1.0.30.0\Include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\VulkanSDK\1.0.30.0\Include;C:\Users\mfade\Documents\Visual Studio 2015\Projects\FromScratchVulkan\glm;$(IncludePath)</IncludePath>
     <LibraryPath>C:\VulkanSDK\1.0.30.0\Bin;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\VulkanSDK\1.0.30.0\Include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\VulkanSDK\1.0.30.0\Include;C:\Users\mfade\Documents\Visual Studio 2015\Projects\FromScratchVulkan\glm;$(IncludePath)</IncludePath>
     <LibraryPath>C:\VulkanSDK\1.0.30.0\Bin;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
