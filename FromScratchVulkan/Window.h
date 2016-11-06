@@ -55,7 +55,11 @@ private:
 	VkImage m_image;
 	VkImageView m_image_view;
 
-	VkDeviceMemory m_device_memory;
+	VkDeviceMemory m_depth_buffer_memory;
+
+	VkBuffer m_buffer;
+
+	VkDeviceMemory m_uniform_buffer_memory;
 
 	bool m_running = true;
 

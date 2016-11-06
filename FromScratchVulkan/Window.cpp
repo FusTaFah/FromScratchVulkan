@@ -19,9 +19,11 @@ Window::Window(Renderer * renderer, uint32_t size_x, uint32_t size_y, std::strin
 	InitSwapchain();
 	InitSwapchainImages();
 	InitDepthBuffer();
+	InitUniformBuffer();
 }
 
 Window::~Window() {
+	DeInitUniformBuffer();
 	DeInitDepthBuffer();
 	DeInitSwapchainImages();
 	DeInitSwapchain();
@@ -190,9 +192,9 @@ void Window::InitDepthBuffer() {
 	memory_allocate_info.allocationSize = memreqs.size;
 	memory_allocate_info.memoryTypeIndex = memory_types_from_properties(memreqs.memoryTypeBits, 0, &memory_allocate_info.memoryTypeIndex, m_renderer->GetPhysicalDeviceMemoryProperties());
 
-	ErrorCheck(vkAllocateMemory(m_renderer->GetVulkanDevice(), &memory_allocate_info, nullptr, &m_device_memory));
+	ErrorCheck(vkAllocateMemory(m_renderer->GetVulkanDevice(), &memory_allocate_info, nullptr, &m_depth_buffer_memory));
 
-	ErrorCheck(vkBindImageMemory(m_renderer->GetVulkanDevice(), m_image, m_device_memory, 0));
+	ErrorCheck(vkBindImageMemory(m_renderer->GetVulkanDevice(), m_image, m_depth_buffer_memory, 0));
 
 	VkImageViewCreateInfo image_view_create_info{};
 	image_view_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -217,16 +219,69 @@ void Window::InitDepthBuffer() {
 void Window::DeInitDepthBuffer() {
 	vkDestroyImageView(m_renderer->GetVulkanDevice(), m_image_view, nullptr);
 	vkDestroyImage(m_renderer->GetVulkanDevice(), m_image, nullptr);
-	vkFreeMemory(m_renderer->GetVulkanDevice(), m_device_memory, nullptr);
+	vkFreeMemory(m_renderer->GetVulkanDevice(), m_depth_buffer_memory, nullptr);
 }
 
 void Window::InitUniformBuffer() {
-	glm::mat4 perspective_matrix = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f);
+	glm::mat4 projection_matrix = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f);
+	glm::mat4 view_matrix = glm::lookAt(
+		glm::vec3(0.0f, 3.0f, 10.0f),
+		glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3(0.0f, -1.0f, 0.0f)
+	);
+	glm::mat4 model_matrix = glm::mat4(1.0f);
+	glm::mat4 clip_matrix = glm::mat4(
+		1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, -1.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 0.5f, 0.0f,
+		0.0f, 0.0f, 0.5f, 1.0f
+	);
+	glm::mat4 model_view_projection_matrix = clip_matrix * projection_matrix * view_matrix * model_matrix;
 
+	VkBufferCreateInfo buffer_create_info{};
+	buffer_create_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+	buffer_create_info.pNext = VK_NULL_HANDLE;
+	buffer_create_info.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+	buffer_create_info.size = sizeof(model_view_projection_matrix);
+	buffer_create_info.queueFamilyIndexCount = 0;
+	buffer_create_info.pQueueFamilyIndices = VK_NULL_HANDLE;
+	buffer_create_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+	buffer_create_info.flags = 0;
+	ErrorCheck(vkCreateBuffer(m_renderer->GetVulkanDevice(), &buffer_create_info, VK_NULL_HANDLE, &m_buffer));
+
+	VkMemoryRequirements memory_requirements;
+	vkGetBufferMemoryRequirements(m_renderer->GetVulkanDevice(), m_buffer, &memory_requirements);
+
+	VkMemoryAllocateInfo memory_allocate_info{};
+	memory_allocate_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	memory_allocate_info.pNext = VK_NULL_HANDLE;
+	memory_allocate_info.memoryTypeIndex = 0;
+	memory_allocate_info.allocationSize = memory_requirements.size;
+
+	if (!memory_types_from_properties(memory_requirements.memoryTypeBits,
+		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+		&memory_allocate_info.memoryTypeIndex,
+		m_renderer->GetPhysicalDeviceMemoryProperties())) {
+
+		assert(0 && "memory assignment error");
+	}
+	else {
+		ErrorCheck(vkAllocateMemory(m_renderer->GetVulkanDevice(), &memory_allocate_info, VK_NULL_HANDLE, &m_uniform_buffer_memory));
+	}
+
+	uint32_t *pData;
+	//map memory
+	ErrorCheck(vkMapMemory(m_renderer->GetVulkanDevice(), m_uniform_buffer_memory, 0, memory_requirements.size, 0, (void **)&pData));
+	//copy model view projection matrix to uniform buffer
+	memcpy(pData, &model_view_projection_matrix, sizeof(model_view_projection_matrix));
+	//unmap memory
+	vkUnmapMemory(m_renderer->GetVulkanDevice(), m_uniform_buffer_memory);
+	//bind buffer to gpu
+	vkBindBufferMemory(m_renderer->GetVulkanDevice(), m_buffer, m_uniform_buffer_memory, 0);
 }
 
 void Window::DeInitUniformBuffer() {
-
+	vkDestroyBuffer(m_renderer->GetVulkanDevice(), m_buffer, VK_NULL_HANDLE);
 }
 
 bool Window::memory_types_from_properties(uint32_t type_bits, VkFlags requirements_mask, uint32_t * typeIndex, VkPhysicalDeviceMemoryProperties memory_properties) {
