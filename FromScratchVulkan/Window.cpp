@@ -12,7 +12,8 @@ Window::Window(Renderer * renderer, uint32_t size_x, uint32_t size_y, std::strin
 	m_surface_capabilities({}),
 	m_surface_format({}),
 	m_swapchain(VK_NULL_HANDLE),
-	m_swapchain_image_count(2)
+	m_swapchain_image_count(2),
+	m_pipeline(nullptr)
 {
 	InitOSWindow();
 	InitSurface();
@@ -20,9 +21,11 @@ Window::Window(Renderer * renderer, uint32_t size_x, uint32_t size_y, std::strin
 	InitSwapchainImages();
 	InitDepthBuffer();
 	InitUniformBuffer();
+	m_pipeline = new Pipeline(m_renderer->GetVulkanDevice(), m_buffer_info);
 }
 
 Window::~Window() {
+	delete m_pipeline;
 	DeInitUniformBuffer();
 	DeInitDepthBuffer();
 	DeInitSwapchainImages();
@@ -278,10 +281,16 @@ void Window::InitUniformBuffer() {
 	vkUnmapMemory(m_renderer->GetVulkanDevice(), m_uniform_buffer_memory);
 	//bind buffer to gpu
 	vkBindBufferMemory(m_renderer->GetVulkanDevice(), m_buffer, m_uniform_buffer_memory, 0);
+
+	m_buffer_info = {};
+	m_buffer_info.buffer = m_buffer;
+	m_buffer_info.offset = 0;
+	m_buffer_info.range = sizeof(model_view_projection_matrix);
 }
 
 void Window::DeInitUniformBuffer() {
 	vkDestroyBuffer(m_renderer->GetVulkanDevice(), m_buffer, VK_NULL_HANDLE);
+	vkFreeMemory(m_renderer->GetVulkanDevice(), m_uniform_buffer_memory, nullptr);
 }
 
 bool Window::memory_types_from_properties(uint32_t type_bits, VkFlags requirements_mask, uint32_t * typeIndex, VkPhysicalDeviceMemoryProperties memory_properties) {

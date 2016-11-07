@@ -3,6 +3,7 @@
 #include "Platform.h"
 #include <string>
 #include <vector>
+#include "Pipeline.h"
 
 class Renderer;
 
@@ -62,6 +63,10 @@ private:
 	VkDeviceMemory m_uniform_buffer_memory;
 
 	bool m_running = true;
+
+	VkDescriptorBufferInfo m_buffer_info;
+
+	Pipeline * m_pipeline;
 
 #ifdef VK_USE_PLATFORM_WIN32_KHR
 	HINSTANCE m_win32_instance = NULL;

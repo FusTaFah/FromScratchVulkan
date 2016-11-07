@@ -31,6 +31,9 @@ private:
 	void InitDevice();
 	void DeInitDevice();
 
+	void InitCommandBuffer();
+	void DeInitCommandBuffer();
+
 	void SetupDebug();
 	void InitDebug();
 	void DeInitDebug();

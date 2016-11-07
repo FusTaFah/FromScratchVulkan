@@ -29,9 +29,11 @@ Renderer::Renderer() {
 	InitInstance();
 	InitDebug();
 	InitDevice();
+	InitCommandBuffer();
 }
 
 Renderer::~Renderer() {
+	DeInitCommandBuffer();
 	delete m_window;
 	DeInitDevice();
 	DeInitDebug();
@@ -190,6 +192,14 @@ void Renderer::InitDevice() {
 void Renderer::DeInitDevice() {
 	vkDestroyDevice(m_device, nullptr);
 	m_device = nullptr;
+}
+
+void Renderer::InitCommandBuffer() {
+
+}
+
+void Renderer::DeInitCommandBuffer() {
+
 }
 
 #if BUILD_OPTIONS_DEBUG
