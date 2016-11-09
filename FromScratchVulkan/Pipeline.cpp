@@ -1,8 +1,8 @@
 #include "Pipeline.h"
+#include "Renderer.h"
 
-Pipeline::Pipeline(const VkDevice & device, const VkPhysicalDeviceMemoryProperties & physical_device_memory_properties) :
-	m_device(device),
-	m_physical_device_memory_properties(physical_device_memory_properties)
+Pipeline::Pipeline(Renderer * renderer) :
+	m_renderer(renderer)
 {
 	InitUniformBuffer();
 	InitPipeline();
@@ -37,10 +37,10 @@ void Pipeline::InitUniformBuffer() {
 	buffer_create_info.pQueueFamilyIndices = VK_NULL_HANDLE;
 	buffer_create_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 	buffer_create_info.flags = 0;
-	ErrorCheck(vkCreateBuffer(m_device, &buffer_create_info, VK_NULL_HANDLE, &m_buffer));
+	ErrorCheck(vkCreateBuffer(m_renderer->GetVulkanDevice(), &buffer_create_info, VK_NULL_HANDLE, &m_buffer));
 
 	VkMemoryRequirements memory_requirements;
-	vkGetBufferMemoryRequirements(m_device, m_buffer, &memory_requirements);
+	vkGetBufferMemoryRequirements(m_renderer->GetVulkanDevice(), m_buffer, &memory_requirements);
 
 	VkMemoryAllocateInfo memory_allocate_info{};
 	memory_allocate_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
@@ -51,23 +51,23 @@ void Pipeline::InitUniformBuffer() {
 	if (!memory_types_from_properties(memory_requirements.memoryTypeBits,
 		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
 		&memory_allocate_info.memoryTypeIndex,
-		m_physical_device_memory_properties)) {
+		m_renderer->GetPhysicalDeviceMemoryProperties())) {
 
 		assert(0 && "memory assignment error");
 	}
 	else {
-		ErrorCheck(vkAllocateMemory(m_device, &memory_allocate_info, VK_NULL_HANDLE, &m_uniform_buffer_memory));
+		ErrorCheck(vkAllocateMemory(m_renderer->GetVulkanDevice(), &memory_allocate_info, VK_NULL_HANDLE, &m_uniform_buffer_memory));
 	}
 
 	uint32_t *pData;
 	//map memory
-	ErrorCheck(vkMapMemory(m_device, m_uniform_buffer_memory, 0, memory_requirements.size, 0, (void **)&pData));
+	ErrorCheck(vkMapMemory(m_renderer->GetVulkanDevice(), m_uniform_buffer_memory, 0, memory_requirements.size, 0, (void **)&pData));
 	//copy model view projection matrix to uniform buffer
 	memcpy(pData, &model_view_projection_matrix, sizeof(model_view_projection_matrix));
 	//unmap memory
-	vkUnmapMemory(m_device, m_uniform_buffer_memory);
+	vkUnmapMemory(m_renderer->GetVulkanDevice(), m_uniform_buffer_memory);
 	//bind buffer to gpu
-	vkBindBufferMemory(m_device, m_buffer, m_uniform_buffer_memory, 0);
+	vkBindBufferMemory(m_renderer->GetVulkanDevice(), m_buffer, m_uniform_buffer_memory, 0);
 
 	m_buffer_info = {};
 	m_buffer_info.buffer = m_buffer;
@@ -90,7 +90,7 @@ void Pipeline::InitPipeline() {
 
 	m_descriptor_set_layouts.resize(NUM_DESCRIPTOR_SETS);
 
-	ErrorCheck(vkCreateDescriptorSetLayout(m_device, &descriptor_set_layout_create_info, VK_NULL_HANDLE, m_descriptor_set_layouts.data()));
+	ErrorCheck(vkCreateDescriptorSetLayout(m_renderer->GetVulkanDevice(), &descriptor_set_layout_create_info, VK_NULL_HANDLE, m_descriptor_set_layouts.data()));
 
 	VkPipelineLayoutCreateInfo pipeline_layout_create_info{};
 	pipeline_layout_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -100,7 +100,7 @@ void Pipeline::InitPipeline() {
 	pipeline_layout_create_info.setLayoutCount = NUM_DESCRIPTOR_SETS;
 	pipeline_layout_create_info.pSetLayouts = m_descriptor_set_layouts.data();
 
-	ErrorCheck(vkCreatePipelineLayout(m_device, &pipeline_layout_create_info, VK_NULL_HANDLE, &m_pipeline_layout));
+	ErrorCheck(vkCreatePipelineLayout(m_renderer->GetVulkanDevice(), &pipeline_layout_create_info, VK_NULL_HANDLE, &m_pipeline_layout));
 
 	VkDescriptorPoolSize descriptor_pool_size[1];
 	descriptor_pool_size[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -113,7 +113,7 @@ void Pipeline::InitPipeline() {
 	descriptor_pool_create_info.poolSizeCount = 1;
 	descriptor_pool_create_info.pPoolSizes = descriptor_pool_size;
 
-	ErrorCheck(vkCreateDescriptorPool(m_device, &descriptor_pool_create_info, VK_NULL_HANDLE, &m_descriptor_pool));
+	ErrorCheck(vkCreateDescriptorPool(m_renderer->GetVulkanDevice(), &descriptor_pool_create_info, VK_NULL_HANDLE, &m_descriptor_pool));
 
 	VkDescriptorSetAllocateInfo descriptor_set_allocate_info[1];
 	descriptor_set_allocate_info[0].sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -126,7 +126,7 @@ void Pipeline::InitPipeline() {
 	std::vector<VkDescriptorSet> descriptor_sets;
 	descriptor_sets.resize(NUM_DESCRIPTOR_SETS);
 
-	ErrorCheck( vkAllocateDescriptorSets(m_device, descriptor_set_allocate_info, descriptor_sets.data()));
+	ErrorCheck( vkAllocateDescriptorSets(m_renderer->GetVulkanDevice(), descriptor_set_allocate_info, descriptor_sets.data()));
 
 	VkWriteDescriptorSet write_descriptor_set[1];
 	write_descriptor_set[0] = {};
@@ -139,16 +139,16 @@ void Pipeline::InitPipeline() {
 	write_descriptor_set[0].dstArrayElement = 0;
 	write_descriptor_set[0].dstBinding = 0;
 
-	vkUpdateDescriptorSets(m_device, 1, write_descriptor_set, 0, VK_NULL_HANDLE);
+	vkUpdateDescriptorSets(m_renderer->GetVulkanDevice(), 1, write_descriptor_set, 0, VK_NULL_HANDLE);
 }
 
 void Pipeline::DeInitPipeline() {
-	vkDestroyDescriptorPool(m_device, m_descriptor_pool, NULL);
-	vkDestroyBuffer(m_device, m_buffer, VK_NULL_HANDLE);
-	vkFreeMemory(m_device, m_uniform_buffer_memory, nullptr);
+	vkDestroyDescriptorPool(m_renderer->GetVulkanDevice(), m_descriptor_pool, NULL);
+	vkDestroyBuffer(m_renderer->GetVulkanDevice(), m_buffer, VK_NULL_HANDLE);
+	vkFreeMemory(m_renderer->GetVulkanDevice(), m_uniform_buffer_memory, nullptr);
 	
 	for (int i = 0; i < NUM_DESCRIPTOR_SETS; i++) {
-		vkDestroyDescriptorSetLayout(m_device, m_descriptor_set_layouts[i], VK_NULL_HANDLE);
+		vkDestroyDescriptorSetLayout(m_renderer->GetVulkanDevice(), m_descriptor_set_layouts[i], VK_NULL_HANDLE);
 	}
-	vkDestroyPipelineLayout(m_device, m_pipeline_layout, VK_NULL_HANDLE);
+	vkDestroyPipelineLayout(m_renderer->GetVulkanDevice(), m_pipeline_layout, VK_NULL_HANDLE);
 }

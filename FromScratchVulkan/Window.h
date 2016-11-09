@@ -53,19 +53,19 @@ private:
 
 	VkDeviceMemory m_depth_buffer_memory;
 
-	VkBuffer m_buffer;
+	//VkBuffer m_buffer;
 
-	VkDeviceMemory m_uniform_buffer_memory;
+	//VkDeviceMemory m_uniform_buffer_memory;
 
-	VkDescriptorBufferInfo m_buffer_info;
+	//VkDescriptorBufferInfo m_buffer_info;
 
-	std::vector<VkDescriptorSetLayout> m_descriptor_set_layouts;
-	VkPipelineLayout m_pipeline_layout;
-	VkDescriptorPool m_descriptor_pool;
+	//std::vector<VkDescriptorSetLayout> m_descriptor_set_layouts;
+	//VkPipelineLayout m_pipeline_layout;
+	//VkDescriptorPool m_descriptor_pool;
 
 	bool m_running = true;
 
-	//Pipeline * m_pipeline;
+	Pipeline * m_pipeline;
 
 #ifdef VK_USE_PLATFORM_WIN32_KHR
 	HINSTANCE m_win32_instance = NULL;

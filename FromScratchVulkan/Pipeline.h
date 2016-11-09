@@ -6,9 +6,12 @@
 
 #define NUM_DESCRIPTOR_SETS 1
 
+class Window;
+class Renderer;
+
 class Pipeline {
 public:
-	Pipeline(const VkDevice & device, const VkPhysicalDeviceMemoryProperties & physical_device_memory_properties);
+	Pipeline(Renderer * renderer);
 	~Pipeline();
 private:
 	//methods
@@ -18,9 +21,7 @@ private:
 	void DeInitPipeline();
 
 	//variables
-	const VkDevice & m_device;
-
-	const VkPhysicalDeviceMemoryProperties & m_physical_device_memory_properties;
+	Renderer * m_renderer;
 
 	VkBuffer m_buffer;
 
