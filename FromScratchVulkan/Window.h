@@ -31,11 +31,6 @@ private:
 	void InitDepthBuffer();
 	void DeInitDepthBuffer();
 
-	void InitUniformBuffer();
-	void DeInitUniformBuffer();
-
-	bool memory_types_from_properties(uint32_t type_bits, VkFlags requirements_mask, uint32_t * typeIndex, VkPhysicalDeviceMemoryProperties memory_properties);
-
 	Renderer * m_renderer;
 
 	VkSurfaceKHR m_surface;
@@ -62,11 +57,15 @@ private:
 
 	VkDeviceMemory m_uniform_buffer_memory;
 
-	bool m_running = true;
-
 	VkDescriptorBufferInfo m_buffer_info;
 
-	Pipeline * m_pipeline;
+	std::vector<VkDescriptorSetLayout> m_descriptor_set_layouts;
+	VkPipelineLayout m_pipeline_layout;
+	VkDescriptorPool m_descriptor_pool;
+
+	bool m_running = true;
+
+	//Pipeline * m_pipeline;
 
 #ifdef VK_USE_PLATFORM_WIN32_KHR
 	HINSTANCE m_win32_instance = NULL;

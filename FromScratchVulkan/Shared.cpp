@@ -77,3 +77,18 @@ void ErrorCheck(VkResult result) {
 void Errcheck(VkResult error)() {}
 
 #endif // BUILD_OPTIONS_RUNTIME_DEBUG
+
+bool memory_types_from_properties(uint32_t type_bits, VkFlags requirements_mask, uint32_t * typeIndex, VkPhysicalDeviceMemoryProperties memory_properties) {
+	for (uint32_t i = 0; i < memory_properties.memoryTypeCount; i++) {
+		if ((type_bits & 1) == 1) {
+			// Type is available, does it match user properties?
+			if ((memory_properties.memoryTypes[i].propertyFlags &
+				requirements_mask) == requirements_mask) {
+				*typeIndex = i;
+				return true;
+			}
+		}
+		type_bits >>= 1;
+	}
+	return false;
+}
