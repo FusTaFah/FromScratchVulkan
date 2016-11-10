@@ -52,4 +52,7 @@ private:
 	VkDebugReportCallbackEXT m_debug_report;
 	VkDebugReportCallbackCreateInfoEXT m_debug_report_callback_create_info;
 	Window * m_window;
+	VkFence m_fence;
+	VkSemaphore m_semaphore;
+	VkCommandPool m_command_pool;
 };
