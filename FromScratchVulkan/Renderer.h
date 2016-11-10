@@ -34,6 +34,9 @@ private:
 	void InitCommandBuffer();
 	void DeInitCommandBuffer();
 
+	void InitRenderPass();
+	void DeInitRenderPass();
+
 	void SetupDebug();
 	void InitDebug();
 	void DeInitDebug();

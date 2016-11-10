@@ -41,6 +41,10 @@ bool Window::Update() {
 	return m_running;
 }
 
+VkSwapchainKHR & Window::GetSwapchain() {
+	return m_swapchain;
+}
+
 void Window::InitSurface() {
 	InitOSSurface();
 

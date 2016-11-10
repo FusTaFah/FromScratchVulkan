@@ -13,6 +13,8 @@ public:
 	~Window();
 	void Close();
 	bool Update();
+	VkSwapchainKHR & GetSwapchain();
+
 private:
 	void InitOSWindow();
 	void DeInitOSWindow();

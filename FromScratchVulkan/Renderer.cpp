@@ -297,6 +297,14 @@ void Renderer::DeInitCommandBuffer() {
 	vkDestroySemaphore(m_device, m_semaphore, nullptr);
 }
 
+void Renderer::InitRenderPass() {
+
+}
+
+void Renderer::DeInitRenderPass() {
+
+}
+
 #if BUILD_OPTIONS_DEBUG
 
 VKAPI_ATTR VkBool32 VKAPI_CALL
