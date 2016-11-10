@@ -3,7 +3,6 @@
 #include "Platform.h"
 #include <string>
 #include <vector>
-#include "Pipeline.h"
 
 class Renderer;
 
@@ -14,7 +13,6 @@ public:
 	void Close();
 	bool Update();
 	VkSwapchainKHR & GetSwapchain();
-
 private:
 	void InitOSWindow();
 	void DeInitOSWindow();
@@ -66,8 +64,6 @@ private:
 	//VkDescriptorPool m_descriptor_pool;
 
 	bool m_running = true;
-
-	Pipeline * m_pipeline;
 
 #ifdef VK_USE_PLATFORM_WIN32_KHR
 	HINSTANCE m_win32_instance = NULL;

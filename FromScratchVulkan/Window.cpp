@@ -12,19 +12,17 @@ Window::Window(Renderer * renderer, uint32_t size_x, uint32_t size_y, std::strin
 	m_surface_capabilities({}),
 	m_surface_format({}),
 	m_swapchain(VK_NULL_HANDLE),
-	m_swapchain_image_count(2),
-	m_pipeline(nullptr)
+	m_swapchain_image_count(2)
 {
 	InitOSWindow();
 	InitSurface();
 	InitSwapchain();
 	InitSwapchainImages();
 	InitDepthBuffer();
-	m_pipeline = new Pipeline(m_renderer);
+	m_renderer->InitRenderPass();
 }
 
 Window::~Window() {
-	delete m_pipeline;
 	DeInitDepthBuffer();
 	DeInitSwapchainImages();
 	DeInitSwapchain();

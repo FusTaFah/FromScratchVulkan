@@ -7,6 +7,7 @@
 #include <assert.h>
 #include "Shared.h"
 #include "Window.h"
+#include "Pipeline.h"
 
 Renderer::Renderer() {
 	m_instance = VK_NULL_HANDLE;
@@ -30,9 +31,11 @@ Renderer::Renderer() {
 	InitDebug();
 	InitDevice();
 	InitCommandBuffer();
+	m_pipeline = new Pipeline(this);
 }
 
 Renderer::~Renderer() {
+	delete m_pipeline;
 	DeInitCommandBuffer();
 	delete m_window;
 	DeInitDevice();
@@ -50,6 +53,14 @@ bool Renderer::Run() {
 		return m_window->Update();
 	}
 	return true;
+}
+
+void Renderer::InitRenderPass() {
+	//vkAcquireNextImageKHR(m_device, m_window->GetSwapchain(), UINT64_MAX, m_semaphore, VK_NULL_HANDLE, )
+}
+
+void Renderer::DeInitRenderPass() {
+
 }
 
 const VkInstance Renderer::GetVulkanInstance() const {
@@ -295,14 +306,6 @@ void Renderer::DeInitCommandBuffer() {
 	vkDestroyCommandPool(m_device, m_command_pool, nullptr);
 	vkDestroyFence(m_device, m_fence, nullptr);
 	vkDestroySemaphore(m_device, m_semaphore, nullptr);
-}
-
-void Renderer::InitRenderPass() {
-
-}
-
-void Renderer::DeInitRenderPass() {
-
 }
 
 #if BUILD_OPTIONS_DEBUG

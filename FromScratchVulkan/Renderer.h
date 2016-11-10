@@ -4,6 +4,7 @@
 #include <vector>
 
 class Window;
+class Pipeline;
 
 class Renderer {
 public:
@@ -12,6 +13,9 @@ public:
 
 	Window * CreateVulkanWindow(uint32_t size_x, uint32_t size_y, std::string name);
 	bool Run();
+
+	void InitRenderPass();
+	void DeInitRenderPass();
 
 	//getters
 	const VkInstance GetVulkanInstance() const;
@@ -22,7 +26,7 @@ public:
 	VkPhysicalDeviceMemoryProperties & GetPhysicalDeviceMemoryProperties() ;
 	const uint32_t GetVulkanGraphicsQueueFamilyIndex() const;
 
-private:
+	private:
 	void SetupLayersAndExtentions();
 
 	void InitInstance();
@@ -33,9 +37,6 @@ private:
 
 	void InitCommandBuffer();
 	void DeInitCommandBuffer();
-
-	void InitRenderPass();
-	void DeInitRenderPass();
 
 	void SetupDebug();
 	void InitDebug();
@@ -55,6 +56,7 @@ private:
 	VkDebugReportCallbackEXT m_debug_report;
 	VkDebugReportCallbackCreateInfoEXT m_debug_report_callback_create_info;
 	Window * m_window;
+	Pipeline * m_pipeline;
 	VkFence m_fence;
 	VkSemaphore m_semaphore;
 	VkCommandPool m_command_pool;

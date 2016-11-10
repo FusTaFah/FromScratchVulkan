@@ -13,6 +13,8 @@ class Pipeline {
 public:
 	Pipeline(Renderer * renderer);
 	~Pipeline();
+
+	VkBuffer GetUniformBuffer();
 private:
 	//methods
 	void InitUniformBuffer();

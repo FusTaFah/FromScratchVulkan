@@ -12,6 +12,10 @@ Pipeline::~Pipeline() {
 	DeInitPipeline();
 }
 
+VkBuffer Pipeline::GetUniformBuffer() {
+	return m_buffer;
+}
+
 void Pipeline::InitUniformBuffer() {
 	glm::mat4 projection_matrix = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f);
 	glm::mat4 view_matrix = glm::lookAt(
