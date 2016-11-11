@@ -59,5 +59,7 @@ public:
 	Pipeline * m_pipeline;
 	VkFence m_fence;
 	VkSemaphore m_semaphore;
+	VkCommandBuffer m_command_buffer[2];
 	VkCommandPool m_command_pool;
+	uint32_t m_current_buffer;
 };

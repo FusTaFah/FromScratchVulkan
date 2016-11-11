@@ -13,6 +13,8 @@ public:
 	void Close();
 	bool Update();
 	VkSwapchainKHR & GetSwapchain();
+	std::vector<VkImage> GetSwapchainImages();
+	std::vector<VkImageView> GetSwapchainImageViews();
 private:
 	void InitOSWindow();
 	void DeInitOSWindow();
@@ -52,16 +54,6 @@ private:
 	VkImageView m_image_view;
 
 	VkDeviceMemory m_depth_buffer_memory;
-
-	//VkBuffer m_buffer;
-
-	//VkDeviceMemory m_uniform_buffer_memory;
-
-	//VkDescriptorBufferInfo m_buffer_info;
-
-	//std::vector<VkDescriptorSetLayout> m_descriptor_set_layouts;
-	//VkPipelineLayout m_pipeline_layout;
-	//VkDescriptorPool m_descriptor_pool;
 
 	bool m_running = true;
 

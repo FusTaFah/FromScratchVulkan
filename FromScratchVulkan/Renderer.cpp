@@ -56,7 +56,38 @@ bool Renderer::Run() {
 }
 
 void Renderer::InitRenderPass() {
-	//vkAcquireNextImageKHR(m_device, m_window->GetSwapchain(), UINT64_MAX, m_semaphore, VK_NULL_HANDLE, )
+	ErrorCheck(vkAcquireNextImageKHR(m_device, m_window->GetSwapchain(), UINT64_MAX, m_semaphore, VK_NULL_HANDLE, &m_current_buffer));
+	//perform a bunch of random ass checks
+	if (m_command_buffer[0] == VK_NULL_HANDLE) {
+		assert(0 && "Command buffer not initialised");
+	}
+	if (m_queue == VK_NULL_HANDLE) {
+		assert(0 && "Device queue not found");
+	}
+
+	VkImageAspectFlags aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	VkImageLayout old_image_layout = VK_IMAGE_LAYOUT_UNDEFINED;
+	VkImageLayout new_image_layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+	VkImageMemoryBarrier image_memory_barrier{};
+	image_memory_barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	image_memory_barrier.pNext = VK_NULL_HANDLE;
+	image_memory_barrier.srcAccessMask = 0;
+	image_memory_barrier.dstAccessMask = 0;
+	image_memory_barrier.oldLayout = old_image_layout;
+	image_memory_barrier.newLayout = new_image_layout;
+	image_memory_barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	image_memory_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	image_memory_barrier.image = m_window->GetSwapchainImages()[m_current_buffer];
+	image_memory_barrier.subresourceRange.aspectMask = aspectMask;
+	image_memory_barrier.subresourceRange.baseMipLevel = 0;
+	image_memory_barrier.subresourceRange.levelCount = 1;
+	image_memory_barrier.subresourceRange.baseArrayLayer = 0;
+	image_memory_barrier.subresourceRange.layerCount = 1;
+
+	if (old_image_layout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) {
+
+	}
 }
 
 void Renderer::DeInitRenderPass() {
@@ -220,13 +251,13 @@ void Renderer::InitCommandBuffer() {
 	pool_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 	ErrorCheck(vkCreateCommandPool(m_device, &pool_info, nullptr, &m_command_pool));
 
-	VkCommandBuffer command_buffer[2];
+	
 	VkCommandBufferAllocateInfo command_buffer_info{};
 	command_buffer_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	command_buffer_info.commandPool = m_command_pool;
 	command_buffer_info.commandBufferCount = 2;
 	command_buffer_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	ErrorCheck(vkAllocateCommandBuffers(m_device, &command_buffer_info, command_buffer));
+	ErrorCheck(vkAllocateCommandBuffers(m_device, &command_buffer_info, m_command_buffer));
 
 	//{
 	//	VkCommandBufferBeginInfo command_buffer_begin_info{};

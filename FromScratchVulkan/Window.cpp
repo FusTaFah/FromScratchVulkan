@@ -43,6 +43,14 @@ VkSwapchainKHR & Window::GetSwapchain() {
 	return m_swapchain;
 }
 
+std::vector<VkImage> Window::GetSwapchainImages() {
+	return m_swapchain_images;
+}
+
+std::vector<VkImageView> Window::GetSwapchainImageViews() {
+	return m_swapchain_image_views;
+}
+
 void Window::InitSurface() {
 	InitOSSurface();
 
