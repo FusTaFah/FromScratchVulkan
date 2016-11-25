@@ -387,8 +387,29 @@ void Renderer::EndCommandBuffer(uint32_t buffer_number) {
 	vkEndCommandBuffer(m_command_buffer[buffer_number]);
 }
 
-void Renderer::QueueCommandBuffer() {
+void Renderer::QueueCommandBuffer(uint32_t buffer_number) {
+	VkSubmitInfo submit_info{};
+	submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submit_info.commandBufferCount = 1;
+	submit_info.pCommandBuffers = &m_command_buffer[buffer_number];
+	submit_info.signalSemaphoreCount = 1;
+	submit_info.pSignalSemaphores = &m_semaphore;
+	vkQueueSubmit(m_queue, 1, &submit_info, VK_NULL_HANDLE);
+}
 
+void Renderer::QueueCommandBuffer(uint32_t buffer_number, VkPipelineStageFlags flags[]) {
+	VkSubmitInfo submit_info{};
+	submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submit_info.commandBufferCount = 1;
+	submit_info.pCommandBuffers = &m_command_buffer[buffer_number];
+	submit_info.waitSemaphoreCount = 1;
+	submit_info.pWaitSemaphores = &m_semaphore;
+	submit_info.pWaitDstStageMask = flags;
+	vkQueueSubmit(m_queue, 1, &submit_info, VK_NULL_HANDLE);
+}
+
+void Renderer::WaitCommandBuffer() {
+	vkQueueWaitIdle(m_queue);
 }
 
 #if BUILD_OPTIONS_DEBUG

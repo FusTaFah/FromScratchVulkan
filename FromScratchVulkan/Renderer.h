@@ -40,7 +40,9 @@ private:
 
 	void BeginCommandBuffer(uint32_t buffer_number);
 	void EndCommandBuffer(uint32_t buffer_number);
-	void QueueCommandBuffer();
+	void QueueCommandBuffer(uint32_t buffer_number);
+	void QueueCommandBuffer(uint32_t buffer_number, VkPipelineStageFlags flags[]);
+	void WaitCommandBuffer();
 
 	void SetupDebug();
 	void InitDebug();
