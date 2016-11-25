@@ -26,7 +26,7 @@ public:
 	VkPhysicalDeviceMemoryProperties & GetPhysicalDeviceMemoryProperties() ;
 	const uint32_t GetVulkanGraphicsQueueFamilyIndex() const;
 
-	private:
+private:
 	void SetupLayersAndExtentions();
 
 	void InitInstance();
@@ -37,6 +37,10 @@ public:
 
 	void InitCommandBuffer();
 	void DeInitCommandBuffer();
+
+	void BeginCommandBuffer(uint32_t buffer_number);
+	void EndCommandBuffer(uint32_t buffer_number);
+	void QueueCommandBuffer();
 
 	void SetupDebug();
 	void InitDebug();

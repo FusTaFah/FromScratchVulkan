@@ -19,7 +19,6 @@ Window::Window(Renderer * renderer, uint32_t size_x, uint32_t size_y, std::strin
 	InitSwapchain();
 	InitSwapchainImages();
 	InitDepthBuffer();
-	m_renderer->InitRenderPass();
 }
 
 Window::~Window() {

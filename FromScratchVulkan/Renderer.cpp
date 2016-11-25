@@ -45,6 +45,7 @@ Renderer::~Renderer() {
 
 Window * Renderer::CreateVulkanWindow(uint32_t size_x, uint32_t size_y, std::string name) {
 	m_window = new Window(this, size_x, size_y, name);
+	InitRenderPass();
 	return m_window;
 }
 
@@ -64,6 +65,8 @@ void Renderer::InitRenderPass() {
 	if (m_queue == VK_NULL_HANDLE) {
 		assert(0 && "Device queue not found");
 	}
+
+	BeginCommandBuffer(0);
 
 	VkImageAspectFlags aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 	VkImageLayout old_image_layout = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -86,8 +89,43 @@ void Renderer::InitRenderPass() {
 	image_memory_barrier.subresourceRange.layerCount = 1;
 
 	if (old_image_layout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) {
-
+		image_memory_barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 	}
+
+	if (new_image_layout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+		image_memory_barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+	}
+
+	if (new_image_layout == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL) {
+		image_memory_barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+	}
+
+	if (old_image_layout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+		image_memory_barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+	}
+
+	if (old_image_layout == VK_IMAGE_LAYOUT_PREINITIALIZED) {
+		image_memory_barrier.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT;
+	}
+
+	if (new_image_layout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+		image_memory_barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+	}
+
+	if (new_image_layout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) {
+		image_memory_barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	}
+
+	if (new_image_layout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
+		image_memory_barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+	}
+
+	VkPipelineStageFlags source_stages = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+	VkPipelineStageFlags destination_stages = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+
+	vkCmdPipelineBarrier(m_command_buffer[0], source_stages, destination_stages, 0, 0, nullptr, 0, nullptr, 1, &image_memory_barrier);
+
+	EndCommandBuffer(0);
 }
 
 void Renderer::DeInitRenderPass() {
@@ -337,6 +375,20 @@ void Renderer::DeInitCommandBuffer() {
 	vkDestroyCommandPool(m_device, m_command_pool, nullptr);
 	vkDestroyFence(m_device, m_fence, nullptr);
 	vkDestroySemaphore(m_device, m_semaphore, nullptr);
+}
+
+void Renderer::BeginCommandBuffer(uint32_t buffer_number) {
+	VkCommandBufferBeginInfo command_buffer_begin_info{};
+	command_buffer_begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	vkBeginCommandBuffer(m_command_buffer[buffer_number], &command_buffer_begin_info);
+}
+
+void Renderer::EndCommandBuffer(uint32_t buffer_number) {
+	vkEndCommandBuffer(m_command_buffer[buffer_number]);
+}
+
+void Renderer::QueueCommandBuffer() {
+
 }
 
 #if BUILD_OPTIONS_DEBUG
