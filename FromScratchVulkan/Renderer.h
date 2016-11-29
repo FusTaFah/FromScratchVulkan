@@ -44,6 +44,9 @@ private:
 	void InitRenderPass();
 	void DeInitRenderPass();
 
+	void InitShaders();
+	void DeInitShaders();
+
 	void SetupDebug();
 	void InitDebug();
 	void DeInitDebug();

@@ -465,6 +465,14 @@ void Renderer::DeInitRenderPass() {
 	vkDestroyRenderPass(m_device, m_render_pass, VK_NULL_HANDLE);
 }
 
+void Renderer::InitShaders() {
+
+}
+
+void Renderer::DeInitShaders() {
+
+}
+
 #if BUILD_OPTIONS_DEBUG
 
 VKAPI_ATTR VkBool32 VKAPI_CALL
