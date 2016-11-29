@@ -68,4 +68,5 @@ private:
 	VkCommandBuffer m_command_buffer[2];
 	VkCommandPool m_command_pool;
 	uint32_t m_current_buffer;
+	VkRenderPass m_render_pass;
 };

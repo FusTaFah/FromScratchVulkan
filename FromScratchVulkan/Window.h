@@ -15,6 +15,7 @@ public:
 	VkSwapchainKHR & GetSwapchain();
 	std::vector<VkImage> GetSwapchainImages();
 	std::vector<VkImageView> GetSwapchainImageViews();
+	VkSurfaceFormatKHR & GetSurfaceFormatKHR();
 private:
 	void InitOSWindow();
 	void DeInitOSWindow();

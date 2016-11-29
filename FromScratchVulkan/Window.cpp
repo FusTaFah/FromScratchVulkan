@@ -50,6 +50,10 @@ std::vector<VkImageView> Window::GetSwapchainImageViews() {
 	return m_swapchain_image_views;
 }
 
+VkSurfaceFormatKHR & Window::GetSurfaceFormatKHR() {
+	return m_surface_format;
+}
+
 void Window::InitSurface() {
 	InitOSSurface();
 
