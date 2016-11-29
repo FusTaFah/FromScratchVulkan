@@ -57,132 +57,39 @@ bool Renderer::Run() {
 	return true;
 }
 
-void Renderer::InitRenderPass() {
-	ErrorCheck(vkAcquireNextImageKHR(m_device, m_window->GetSwapchain(), UINT64_MAX, m_semaphore, VK_NULL_HANDLE, &m_current_buffer));
-	//perform a bunch of random ass checks
-	if (m_command_buffer[0] == VK_NULL_HANDLE) {
-		assert(0 && "Command buffer not initialised");
-	}
-	if (m_queue == VK_NULL_HANDLE) {
-		assert(0 && "Device queue not found");
-	}
-
-	BeginCommandBuffer(0);
-
-	VkImageAspectFlags aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-	VkImageLayout old_image_layout = VK_IMAGE_LAYOUT_UNDEFINED;
-	VkImageLayout new_image_layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-	VkImageMemoryBarrier image_memory_barrier{};
-	image_memory_barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-	image_memory_barrier.pNext = VK_NULL_HANDLE;
-	image_memory_barrier.srcAccessMask = 0;
-	image_memory_barrier.dstAccessMask = 0;
-	image_memory_barrier.oldLayout = old_image_layout;
-	image_memory_barrier.newLayout = new_image_layout;
-	image_memory_barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-	image_memory_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-	image_memory_barrier.image = m_window->GetSwapchainImages()[m_current_buffer];
-	image_memory_barrier.subresourceRange.aspectMask = aspectMask;
-	image_memory_barrier.subresourceRange.baseMipLevel = 0;
-	image_memory_barrier.subresourceRange.levelCount = 1;
-	image_memory_barrier.subresourceRange.baseArrayLayer = 0;
-	image_memory_barrier.subresourceRange.layerCount = 1;
-
-	if (old_image_layout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) {
-		image_memory_barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-	}
-
-	if (new_image_layout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
-		image_memory_barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-	}
-
-	if (new_image_layout == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL) {
-		image_memory_barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-	}
-
-	if (old_image_layout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
-		image_memory_barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-	}
-
-	if (old_image_layout == VK_IMAGE_LAYOUT_PREINITIALIZED) {
-		image_memory_barrier.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT;
-	}
-
-	if (new_image_layout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
-		image_memory_barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-	}
-
-	if (new_image_layout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) {
-		image_memory_barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-	}
-
-	if (new_image_layout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
-		image_memory_barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-	}
-
-	VkPipelineStageFlags source_stages = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-	VkPipelineStageFlags destination_stages = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-
-	vkCmdPipelineBarrier(m_command_buffer[0], source_stages, destination_stages, 0, 0, nullptr, 0, nullptr, 1, &image_memory_barrier);
-
-	EndCommandBuffer(0);
-
-	VkAttachmentDescription attachment_descriptions[2];
-	attachment_descriptions[0].format = m_window->GetSurfaceFormatKHR().format;
-	attachment_descriptions[0].samples = VK_SAMPLE_COUNT_1_BIT;
-	attachment_descriptions[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-	attachment_descriptions[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-	attachment_descriptions[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-	attachment_descriptions[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	attachment_descriptions[0].initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-	attachment_descriptions[0].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-	attachment_descriptions[0].flags = 0;
-
-	attachment_descriptions[1].format = VK_FORMAT_D16_UNORM;
-	attachment_descriptions[1].samples = VK_SAMPLE_COUNT_1_BIT;
-	attachment_descriptions[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-	attachment_descriptions[1].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	attachment_descriptions[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-	attachment_descriptions[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	attachment_descriptions[1].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-	attachment_descriptions[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-	attachment_descriptions[1].flags = 0;
-
-	VkAttachmentReference color_attachment_reference{};
-	color_attachment_reference.attachment = 0;
-	color_attachment_reference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-	VkAttachmentReference depth_attachment_reference{};
-	depth_attachment_reference.attachment = 1;
-	depth_attachment_reference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-	VkSubpassDescription subpass_description{};
-	subpass_description.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-	subpass_description.flags = 0;
-	subpass_description.inputAttachmentCount = 0;
-	subpass_description.pInputAttachments = VK_NULL_HANDLE;
-	subpass_description.colorAttachmentCount = 1;
-	subpass_description.pColorAttachments = &color_attachment_reference;
-	subpass_description.pResolveAttachments = VK_NULL_HANDLE;
-	subpass_description.pDepthStencilAttachment = &depth_attachment_reference;
-	subpass_description.preserveAttachmentCount = 0;
-	subpass_description.pPreserveAttachments = VK_NULL_HANDLE;
-
-	VkRenderPassCreateInfo render_pass_create_info{};
-	render_pass_create_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-	render_pass_create_info.pNext = VK_NULL_HANDLE;
-	render_pass_create_info.attachmentCount = 2;
-	render_pass_create_info.pAttachments = attachment_descriptions;
-	render_pass_create_info.subpassCount = 1;
-	render_pass_create_info.pSubpasses = &subpass_description;
-	render_pass_create_info.dependencyCount = 0;
-	render_pass_create_info.pDependencies = VK_NULL_HANDLE;
-	ErrorCheck(vkCreateRenderPass(m_device, &render_pass_create_info, VK_NULL_HANDLE, &m_render_pass));
+void Renderer::BeginCommandBuffer(uint32_t buffer_number) {
+	VkCommandBufferBeginInfo command_buffer_begin_info{};
+	command_buffer_begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	vkBeginCommandBuffer(m_command_buffer[buffer_number], &command_buffer_begin_info);
 }
 
-void Renderer::DeInitRenderPass() {
-	vkDestroyRenderPass(m_device, m_render_pass, VK_NULL_HANDLE);
+void Renderer::EndCommandBuffer(uint32_t buffer_number) {
+	vkEndCommandBuffer(m_command_buffer[buffer_number]);
+}
+
+void Renderer::QueueCommandBuffer(uint32_t buffer_number) {
+	VkSubmitInfo submit_info{};
+	submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submit_info.commandBufferCount = 1;
+	submit_info.pCommandBuffers = &m_command_buffer[buffer_number];
+	submit_info.signalSemaphoreCount = 1;
+	submit_info.pSignalSemaphores = &m_semaphore;
+	vkQueueSubmit(m_queue, 1, &submit_info, VK_NULL_HANDLE);
+}
+
+void Renderer::QueueCommandBuffer(uint32_t buffer_number, VkPipelineStageFlags flags[]) {
+	VkSubmitInfo submit_info{};
+	submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submit_info.commandBufferCount = 1;
+	submit_info.pCommandBuffers = &m_command_buffer[buffer_number];
+	submit_info.waitSemaphoreCount = 1;
+	submit_info.pWaitSemaphores = &m_semaphore;
+	submit_info.pWaitDstStageMask = flags;
+	vkQueueSubmit(m_queue, 1, &submit_info, VK_NULL_HANDLE);
+}
+
+void Renderer::WaitCommandBuffer() {
+	vkQueueWaitIdle(m_queue);
 }
 
 const VkInstance Renderer::GetVulkanInstance() const {
@@ -430,39 +337,132 @@ void Renderer::DeInitCommandBuffer() {
 	vkDestroySemaphore(m_device, m_semaphore, nullptr);
 }
 
-void Renderer::BeginCommandBuffer(uint32_t buffer_number) {
-	VkCommandBufferBeginInfo command_buffer_begin_info{};
-	command_buffer_begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-	vkBeginCommandBuffer(m_command_buffer[buffer_number], &command_buffer_begin_info);
+void Renderer::InitRenderPass() {
+	ErrorCheck(vkAcquireNextImageKHR(m_device, m_window->GetSwapchain(), UINT64_MAX, m_semaphore, VK_NULL_HANDLE, &m_current_buffer));
+	//perform a bunch of random ass checks
+	if (m_command_buffer[0] == VK_NULL_HANDLE) {
+		assert(0 && "Command buffer not initialised");
+	}
+	if (m_queue == VK_NULL_HANDLE) {
+		assert(0 && "Device queue not found");
+	}
+
+	BeginCommandBuffer(0);
+
+	VkImageAspectFlags aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	VkImageLayout old_image_layout = VK_IMAGE_LAYOUT_UNDEFINED;
+	VkImageLayout new_image_layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+	VkImageMemoryBarrier image_memory_barrier{};
+	image_memory_barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	image_memory_barrier.pNext = VK_NULL_HANDLE;
+	image_memory_barrier.srcAccessMask = 0;
+	image_memory_barrier.dstAccessMask = 0;
+	image_memory_barrier.oldLayout = old_image_layout;
+	image_memory_barrier.newLayout = new_image_layout;
+	image_memory_barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	image_memory_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	image_memory_barrier.image = m_window->GetSwapchainImages()[m_current_buffer];
+	image_memory_barrier.subresourceRange.aspectMask = aspectMask;
+	image_memory_barrier.subresourceRange.baseMipLevel = 0;
+	image_memory_barrier.subresourceRange.levelCount = 1;
+	image_memory_barrier.subresourceRange.baseArrayLayer = 0;
+	image_memory_barrier.subresourceRange.layerCount = 1;
+
+	if (old_image_layout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) {
+		image_memory_barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	}
+
+	if (new_image_layout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+		image_memory_barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+	}
+
+	if (new_image_layout == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL) {
+		image_memory_barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+	}
+
+	if (old_image_layout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+		image_memory_barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+	}
+
+	if (old_image_layout == VK_IMAGE_LAYOUT_PREINITIALIZED) {
+		image_memory_barrier.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT;
+	}
+
+	if (new_image_layout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+		image_memory_barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+	}
+
+	if (new_image_layout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) {
+		image_memory_barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	}
+
+	if (new_image_layout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
+		image_memory_barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+	}
+
+	VkPipelineStageFlags source_stages = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+	VkPipelineStageFlags destination_stages = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+
+	vkCmdPipelineBarrier(m_command_buffer[0], source_stages, destination_stages, 0, 0, nullptr, 0, nullptr, 1, &image_memory_barrier);
+
+	EndCommandBuffer(0);
+
+	VkAttachmentDescription attachment_descriptions[2];
+	attachment_descriptions[0].format = m_window->GetSurfaceFormatKHR().format;
+	attachment_descriptions[0].samples = VK_SAMPLE_COUNT_1_BIT;
+	attachment_descriptions[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	attachment_descriptions[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+	attachment_descriptions[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	attachment_descriptions[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	attachment_descriptions[0].initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	attachment_descriptions[0].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+	attachment_descriptions[0].flags = 0;
+
+	attachment_descriptions[1].format = VK_FORMAT_D16_UNORM;
+	attachment_descriptions[1].samples = VK_SAMPLE_COUNT_1_BIT;
+	attachment_descriptions[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	attachment_descriptions[1].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	attachment_descriptions[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	attachment_descriptions[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	attachment_descriptions[1].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+	attachment_descriptions[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+	attachment_descriptions[1].flags = 0;
+
+	VkAttachmentReference color_attachment_reference{};
+	color_attachment_reference.attachment = 0;
+	color_attachment_reference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+	VkAttachmentReference depth_attachment_reference{};
+	depth_attachment_reference.attachment = 1;
+	depth_attachment_reference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+	VkSubpassDescription subpass_description{};
+	subpass_description.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+	subpass_description.flags = 0;
+	subpass_description.inputAttachmentCount = 0;
+	subpass_description.pInputAttachments = VK_NULL_HANDLE;
+	subpass_description.colorAttachmentCount = 1;
+	subpass_description.pColorAttachments = &color_attachment_reference;
+	subpass_description.pResolveAttachments = VK_NULL_HANDLE;
+	subpass_description.pDepthStencilAttachment = &depth_attachment_reference;
+	subpass_description.preserveAttachmentCount = 0;
+	subpass_description.pPreserveAttachments = VK_NULL_HANDLE;
+
+	VkRenderPassCreateInfo render_pass_create_info{};
+	render_pass_create_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+	render_pass_create_info.pNext = VK_NULL_HANDLE;
+	render_pass_create_info.attachmentCount = 2;
+	render_pass_create_info.pAttachments = attachment_descriptions;
+	render_pass_create_info.subpassCount = 1;
+	render_pass_create_info.pSubpasses = &subpass_description;
+	render_pass_create_info.dependencyCount = 0;
+	render_pass_create_info.pDependencies = VK_NULL_HANDLE;
+	ErrorCheck(vkCreateRenderPass(m_device, &render_pass_create_info, VK_NULL_HANDLE, &m_render_pass));
 }
 
-void Renderer::EndCommandBuffer(uint32_t buffer_number) {
-	vkEndCommandBuffer(m_command_buffer[buffer_number]);
-}
-
-void Renderer::QueueCommandBuffer(uint32_t buffer_number) {
-	VkSubmitInfo submit_info{};
-	submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-	submit_info.commandBufferCount = 1;
-	submit_info.pCommandBuffers = &m_command_buffer[buffer_number];
-	submit_info.signalSemaphoreCount = 1;
-	submit_info.pSignalSemaphores = &m_semaphore;
-	vkQueueSubmit(m_queue, 1, &submit_info, VK_NULL_HANDLE);
-}
-
-void Renderer::QueueCommandBuffer(uint32_t buffer_number, VkPipelineStageFlags flags[]) {
-	VkSubmitInfo submit_info{};
-	submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-	submit_info.commandBufferCount = 1;
-	submit_info.pCommandBuffers = &m_command_buffer[buffer_number];
-	submit_info.waitSemaphoreCount = 1;
-	submit_info.pWaitSemaphores = &m_semaphore;
-	submit_info.pWaitDstStageMask = flags;
-	vkQueueSubmit(m_queue, 1, &submit_info, VK_NULL_HANDLE);
-}
-
-void Renderer::WaitCommandBuffer() {
-	vkQueueWaitIdle(m_queue);
+void Renderer::DeInitRenderPass() {
+	vkDestroyRenderPass(m_device, m_render_pass, VK_NULL_HANDLE);
 }
 
 #if BUILD_OPTIONS_DEBUG

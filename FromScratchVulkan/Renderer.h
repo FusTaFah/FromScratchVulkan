@@ -14,8 +14,11 @@ public:
 	Window * CreateVulkanWindow(uint32_t size_x, uint32_t size_y, std::string name);
 	bool Run();
 
-	void InitRenderPass();
-	void DeInitRenderPass();
+	void BeginCommandBuffer(uint32_t buffer_number);
+	void EndCommandBuffer(uint32_t buffer_number);
+	void QueueCommandBuffer(uint32_t buffer_number);
+	void QueueCommandBuffer(uint32_t buffer_number, VkPipelineStageFlags flags[]);
+	void WaitCommandBuffer();
 
 	//getters
 	const VkInstance GetVulkanInstance() const;
@@ -38,11 +41,8 @@ private:
 	void InitCommandBuffer();
 	void DeInitCommandBuffer();
 
-	void BeginCommandBuffer(uint32_t buffer_number);
-	void EndCommandBuffer(uint32_t buffer_number);
-	void QueueCommandBuffer(uint32_t buffer_number);
-	void QueueCommandBuffer(uint32_t buffer_number, VkPipelineStageFlags flags[]);
-	void WaitCommandBuffer();
+	void InitRenderPass();
+	void DeInitRenderPass();
 
 	void SetupDebug();
 	void InitDebug();
