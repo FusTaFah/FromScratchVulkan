@@ -32,9 +32,11 @@ Renderer::Renderer() {
 	InitDevice();
 	InitCommandBuffer();
 	m_pipeline = new Pipeline(this);
+	InitShaders();
 }
 
 Renderer::~Renderer() {
+	DeInitShaders();
 	DeInitRenderPass();
 	delete m_pipeline;
 	DeInitCommandBuffer();
@@ -466,11 +468,87 @@ void Renderer::DeInitRenderPass() {
 }
 
 void Renderer::InitShaders() {
+	static const char * vertex_shader_text =
+		"#version 400\n"
+        "#extension GL_ARB_separate_shader_objects : enable\n"
+        "#extension GL_ARB_shading_language_420pack : enable\n"
+        "layout (std140, binding = 0) uniform bufferVals {\n"
+        "    mat4 mvp;\n"
+        "} myBufferVals;\n"
+        "layout (location = 0) in vec4 pos;\n"
+        "layout (location = 1) in vec4 inColor;\n"
+        "layout (location = 0) out vec4 outColor;\n"
+        "out gl_PerVertex { \n"
+        "    vec4 gl_Position;\n"
+        "};\n"
+        "void main() {\n"
+        "   outColor = inColor;\n"
+        "   gl_Position = myBufferVals.mvp * pos;\n"
+		"}\n";
 
+	static const char * fragment_shader_text = 
+		"#version 400\n"
+		"#extension GL_ARB_separate_shader_objects : enable\n"
+		"#extension GL_ARB_shading_language_420pack : enable\n"
+		"layout (location = 0) in vec4 color;\n"
+		"layout (location = 0) out vec4 outColor;\n"
+		"void main() {\n"
+		"   outColor = color;\n"
+		"}\n";
+
+	std::vector<unsigned int> vertex_shader_SPIR_V;
+	m_pipeline_shader_stage_create_info[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	m_pipeline_shader_stage_create_info[0].pNext = VK_NULL_HANDLE;
+	m_pipeline_shader_stage_create_info[0].pSpecializationInfo = VK_NULL_HANDLE;
+	m_pipeline_shader_stage_create_info[0].flags = 0;
+	m_pipeline_shader_stage_create_info[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
+	m_pipeline_shader_stage_create_info[0].pName = "main";
+
+	glslang::InitializeProcess();
+	
+	bool vertex_shader_result = GLSLtoSPV(VK_SHADER_STAGE_VERTEX_BIT, vertex_shader_text, vertex_shader_SPIR_V);
+	if (!vertex_shader_result) {
+		assert(0 && "Shader could not be converted from GLSL to SPIR_V");
+	}
+
+	VkShaderModuleCreateInfo vertex_shader_module_create_info{};
+	vertex_shader_module_create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+	vertex_shader_module_create_info.pNext = VK_NULL_HANDLE;
+	vertex_shader_module_create_info.flags = 0;
+	vertex_shader_module_create_info.codeSize = vertex_shader_SPIR_V.size() * sizeof(unsigned int);
+	vertex_shader_module_create_info.pCode = vertex_shader_SPIR_V.data();
+
+	ErrorCheck(vkCreateShaderModule(m_device, &vertex_shader_module_create_info, VK_NULL_HANDLE, &m_pipeline_shader_stage_create_info[0].module));
+	
+	std::vector<unsigned int> fragment_shader_SPIR_V;
+	m_pipeline_shader_stage_create_info[1].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	m_pipeline_shader_stage_create_info[1].pNext = VK_NULL_HANDLE;
+	m_pipeline_shader_stage_create_info[1].pSpecializationInfo = VK_NULL_HANDLE;
+	m_pipeline_shader_stage_create_info[1].flags = 0;
+	m_pipeline_shader_stage_create_info[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+	m_pipeline_shader_stage_create_info[1].pName = "main";
+
+	bool fragment_shader_result = GLSLtoSPV(VK_SHADER_STAGE_FRAGMENT_BIT, fragment_shader_text, fragment_shader_SPIR_V);
+	if (!fragment_shader_result) {
+		assert(0 && "Shader could not be converted from GLSL to SPIR_V");
+	}
+
+	VkShaderModuleCreateInfo fragment_shader_module_create_info{};
+	fragment_shader_module_create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+	fragment_shader_module_create_info.pNext = VK_NULL_HANDLE;
+	fragment_shader_module_create_info.flags = 0;
+	fragment_shader_module_create_info.codeSize = fragment_shader_SPIR_V.size() * sizeof(unsigned int);
+	fragment_shader_module_create_info.pCode = fragment_shader_SPIR_V.data();
+
+	ErrorCheck(vkCreateShaderModule(m_device, &fragment_shader_module_create_info, VK_NULL_HANDLE, &m_pipeline_shader_stage_create_info[1].module));
+
+	glslang::FinalizeProcess();
 }
 
 void Renderer::DeInitShaders() {
-
+	for (int i = 0; i < 2; i++) {
+		vkDestroyShaderModule(m_device, m_pipeline_shader_stage_create_info[i].module, VK_NULL_HANDLE);
+	}
 }
 
 #if BUILD_OPTIONS_DEBUG

@@ -69,19 +69,19 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\VulkanSDK\1.0.30.0\Include;C:\Users\mfade\Documents\Visual Studio 2015\Projects\FromScratchVulkan\glm;$(IncludePath)</IncludePath>
+    <IncludePath>C:\VulkanSDK\1.0.30.0\Include;C:\Users\mfade\Documents\Visual Studio 2015\Projects\FromScratchVulkan\glm;C:\VulkanSDK\1.0.30.0\glslang;$(IncludePath)</IncludePath>
     <LibraryPath>C:\VulkanSDK\1.0.30.0\Bin32;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>C:\VulkanSDK\1.0.30.0\Include;C:\Users\mfade\Documents\Visual Studio 2015\Projects\FromScratchVulkan\glm;$(IncludePath)</IncludePath>
+    <IncludePath>C:\VulkanSDK\1.0.30.0\Include;C:\Users\mfade\Documents\Visual Studio 2015\Projects\FromScratchVulkan\glm;C:\VulkanSDK\1.0.30.0\glslang;$(IncludePath)</IncludePath>
     <LibraryPath>C:\VulkanSDK\1.0.30.0\Bin32;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\VulkanSDK\1.0.30.0\Include;C:\Users\mfade\Documents\Visual Studio 2015\Projects\FromScratchVulkan\glm;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\VulkanSDK\1.0.30.0\Bin;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\VulkanSDK\1.0.30.0\spirv-tools\include;C:\VulkanSDK\1.0.30.0\glslang;C:\VulkanSDK\1.0.30.0\Include;C:\Users\mfade\Documents\Visual Studio 2015\Projects\FromScratchVulkan\glm;%(AdditionalIncludeDirectories);$(IncludePath)</IncludePath>
+    <LibraryPath>C:\VulkanSDK\1.0.30.0\glslang\build\glslang\OSDependent\Windows\Debug;C:\VulkanSDK\1.0.30.0\glslang\build\StandAlone\Debug;C:\VulkanSDK\1.0.30.0\glslang\build\OGLCompilersDLL\Debug;C:\VulkanSDK\1.0.30.0\glslang\build\hlsl\Debug;C:\VulkanSDK\1.0.30.0\glslang\build\SPIRV\Debug;C:\VulkanSDK\1.0.30.0\spirv-tools\build\source\Debug;C:\VulkanSDK\1.0.30.0\glslang\build\glslang\Debug;C:\VulkanSDK\1.0.30.0\Source\lib;%(AdditionalLibraryDirectories);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\VulkanSDK\1.0.30.0\Include;C:\Users\mfade\Documents\Visual Studio 2015\Projects\FromScratchVulkan\glm;$(IncludePath)</IncludePath>
+    <IncludePath>C:\VulkanSDK\1.0.30.0\Include;C:\Users\mfade\Documents\Visual Studio 2015\Projects\FromScratchVulkan\glm;C:\VulkanSDK\1.0.30.0\glslang;C:\VulkanSDK\1.0.30.0\spirv-tools\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\VulkanSDK\1.0.30.0\Bin;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -91,7 +91,8 @@
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>vulkan-1.lib;VKstatic.1.lib;VkLayer_utils.lib;VkLayer_unique_objects.lib;VkLayer_threading.lib;VkLayer_swapchain.lib;VkLayer_screenshot.lib;VkLayer_parameter_validation.lib;VkLayer_object_tracker.lib;VkLayer_image.lib;VkLayer_core_validation.lib;VkLayer_api_dump.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\VulkanSDK\1.0.30.0\Source;C:\VulkanSDK\1.0.30.0\Bin;C:\VulkanSDK\1.0.30.0\Bin32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -99,9 +100,11 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>vulkan-1.lib;glslangd.lib;SPIRV-Tools.lib;SPIRVd.lib;SPVRemapperd.lib;HLSLd.lib;OGLCompilerd.lib;glslang-default-resource-limitsd.lib;OSDependentd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -115,7 +118,8 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>vulkan-1.lib;VKstatic.1.lib;VkLayer_utils.lib;VkLayer_unique_objects.lib;VkLayer_threading.lib;VkLayer_swapchain.lib;VkLayer_screenshot.lib;VkLayer_parameter_validation.lib;VkLayer_object_tracker.lib;VkLayer_image.lib;VkLayer_core_validation.lib;VkLayer_api_dump.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\VulkanSDK\1.0.30.0\Source;C:\VulkanSDK\1.0.30.0\Bin;C:\VulkanSDK\1.0.30.0\Bin32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -125,11 +129,13 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>C:\VulkanSDK\1.0.30.0\glslang;C:\VulkanSDK\1.0.30.0\spirv-tools\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\VulkanSDK\1.0.30.0\Source;C:\VulkanSDK\1.0.30.0\Bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

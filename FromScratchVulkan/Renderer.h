@@ -47,6 +47,9 @@ private:
 	void InitShaders();
 	void DeInitShaders();
 
+	void InitFrameBuffer();
+	void DeInitFrameBuffer();
+
 	void SetupDebug();
 	void InitDebug();
 	void DeInitDebug();
@@ -72,4 +75,5 @@ private:
 	VkCommandPool m_command_pool;
 	uint32_t m_current_buffer;
 	VkRenderPass m_render_pass;
+	VkPipelineShaderStageCreateInfo m_pipeline_shader_stage_create_info[2];
 };
