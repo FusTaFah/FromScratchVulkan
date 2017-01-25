@@ -54,6 +54,22 @@ VkSurfaceFormatKHR & Window::GetSurfaceFormatKHR() {
 	return m_surface_format;
 }
 
+VkImageView & Window::GetDepthBuffer() {
+	return m_image_view;
+}
+
+uint32_t & Window::GetSurfaceSizeX() {
+	return m_surface_size_x;
+}
+
+uint32_t & Window::GetSurfaceSizeY() {
+	return m_surface_size_y;
+}
+
+uint32_t & Window::GetSwapchainImageCount() {
+	return m_swapchain_image_count;
+}
+
 void Window::InitSurface() {
 	InitOSSurface();
 

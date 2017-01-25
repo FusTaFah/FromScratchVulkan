@@ -76,4 +76,5 @@ private:
 	uint32_t m_current_buffer;
 	VkRenderPass m_render_pass;
 	VkPipelineShaderStageCreateInfo m_pipeline_shader_stage_create_info[2];
+	VkFramebuffer * m_frame_buffers;
 };

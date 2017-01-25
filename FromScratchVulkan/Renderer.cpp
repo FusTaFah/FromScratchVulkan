@@ -36,6 +36,7 @@ Renderer::Renderer() {
 }
 
 Renderer::~Renderer() {
+	DeInitFrameBuffer();
 	DeInitShaders();
 	DeInitRenderPass();
 	delete m_pipeline;
@@ -49,6 +50,7 @@ Renderer::~Renderer() {
 Window * Renderer::CreateVulkanWindow(uint32_t size_x, uint32_t size_y, std::string name) {
 	m_window = new Window(this, size_x, size_y, name);
 	InitRenderPass();
+	InitFrameBuffer();
 	return m_window;
 }
 
@@ -465,6 +467,44 @@ void Renderer::InitRenderPass() {
 
 void Renderer::DeInitRenderPass() {
 	vkDestroyRenderPass(m_device, m_render_pass, VK_NULL_HANDLE);
+}
+
+void Renderer::InitFrameBuffer() {
+	BeginCommandBuffer(0);
+	VkImageView frame_buffer_views[2];
+	frame_buffer_views[1] = m_window->GetDepthBuffer();
+
+	VkFramebufferCreateInfo frame_buffer_create_info{};
+	frame_buffer_create_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+	frame_buffer_create_info.pNext = VK_NULL_HANDLE;
+	frame_buffer_create_info.renderPass = m_render_pass;
+	frame_buffer_create_info.attachmentCount = 2;
+	frame_buffer_create_info.pAttachments = frame_buffer_views;
+	frame_buffer_create_info.width = m_window->GetSurfaceSizeX();
+	frame_buffer_create_info.height = m_window->GetSurfaceSizeY();
+	frame_buffer_create_info.layers = 1;
+
+	m_frame_buffers = (VkFramebuffer *)malloc(m_window->GetSwapchainImageCount() * sizeof(VkFramebuffer));
+	if (m_frame_buffers == 0) {
+		assert(0 && "Could not allocate memory for frame buffers; either they haven't been created or your OS is fucked");
+	}
+
+	for (int i = 0; i < m_window->GetSwapchainImageCount(); i++) {
+		frame_buffer_views[0] = m_window->GetSwapchainImageViews()[i];
+		ErrorCheck(vkCreateFramebuffer(m_device, &frame_buffer_create_info, VK_NULL_HANDLE, &m_frame_buffers[i]));
+	}
+
+	EndCommandBuffer(0);
+	WaitCommandBuffer();
+	QueueCommandBuffer(0);
+	
+}
+
+void Renderer::DeInitFrameBuffer() {
+	for (int i = 0; i < m_window->GetSwapchainImageCount(); i++) {
+		vkDestroyFramebuffer(m_device, m_frame_buffers[i], VK_NULL_HANDLE);
+	}
+	free(m_frame_buffers);
 }
 
 void Renderer::InitShaders() {

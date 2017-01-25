@@ -16,6 +16,10 @@ public:
 	std::vector<VkImage> GetSwapchainImages();
 	std::vector<VkImageView> GetSwapchainImageViews();
 	VkSurfaceFormatKHR & GetSurfaceFormatKHR();
+	VkImageView & GetDepthBuffer();
+	uint32_t & GetSurfaceSizeX();
+	uint32_t & GetSurfaceSizeY();
+	uint32_t & GetSwapchainImageCount();
 private:
 	void InitOSWindow();
 	void DeInitOSWindow();
