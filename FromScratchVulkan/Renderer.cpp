@@ -494,9 +494,11 @@ void Renderer::InitFrameBuffer() {
 		ErrorCheck(vkCreateFramebuffer(m_device, &frame_buffer_create_info, VK_NULL_HANDLE, &m_frame_buffers[i]));
 	}
 
+	
 	EndCommandBuffer(0);
-	WaitCommandBuffer();
-	QueueCommandBuffer(0);
+	
+	//QueueCommandBuffer(0);
+	//WaitCommandBuffer();
 	
 }
 
