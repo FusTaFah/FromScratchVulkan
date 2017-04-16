@@ -78,7 +78,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>C:\VulkanSDK\1.0.30.0\spirv-tools\include;C:\VulkanSDK\1.0.30.0\glslang;C:\VulkanSDK\1.0.30.0\Include;C:\Users\mfade\Documents\Visual Studio 2015\Projects\FromScratchVulkan\glm;%(AdditionalIncludeDirectories);$(IncludePath)</IncludePath>
-    <LibraryPath>C:\VulkanSDK\1.0.30.0\glslang\build\glslang\OSDependent\Windows\Debug;C:\VulkanSDK\1.0.30.0\glslang\build\StandAlone\Debug;C:\VulkanSDK\1.0.30.0\glslang\build\OGLCompilersDLL\Debug;C:\VulkanSDK\1.0.30.0\glslang\build\hlsl\Debug;C:\VulkanSDK\1.0.30.0\glslang\build\SPIRV\Debug;C:\VulkanSDK\1.0.30.0\spirv-tools\build\source\Debug;C:\VulkanSDK\1.0.30.0\glslang\build\glslang\Debug;C:\VulkanSDK\1.0.30.0\Source\lib;%(AdditionalLibraryDirectories);$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\VulkanSDK\1.0.30.0\Bin;C:\VulkanSDK\1.0.30.0\glslang\build\glslang\OSDependent\Windows\Debug;C:\VulkanSDK\1.0.30.0\glslang\build\StandAlone\Debug;C:\VulkanSDK\1.0.30.0\glslang\build\OGLCompilersDLL\Debug;C:\VulkanSDK\1.0.30.0\glslang\build\hlsl\Debug;C:\VulkanSDK\1.0.30.0\glslang\build\SPIRV\Debug;C:\VulkanSDK\1.0.30.0\spirv-tools\build\source\Debug;C:\VulkanSDK\1.0.30.0\glslang\build\glslang\Debug;C:\VulkanSDK\1.0.30.0\Source\lib;%(AdditionalLibraryDirectories);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>C:\VulkanSDK\1.0.30.0\Include;C:\Users\mfade\Documents\Visual Studio 2015\Projects\FromScratchVulkan\glm;C:\VulkanSDK\1.0.30.0\glslang;C:\VulkanSDK\1.0.30.0\spirv-tools\include;$(IncludePath)</IncludePath>

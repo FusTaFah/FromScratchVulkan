@@ -64,11 +64,11 @@ bool Renderer::Run() {
 void Renderer::BeginCommandBuffer(uint32_t buffer_number) {
 	VkCommandBufferBeginInfo command_buffer_begin_info{};
 	command_buffer_begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-	vkBeginCommandBuffer(m_command_buffer[buffer_number], &command_buffer_begin_info);
+	ErrorCheck(vkBeginCommandBuffer(m_command_buffer[buffer_number], &command_buffer_begin_info));
 }
 
 void Renderer::EndCommandBuffer(uint32_t buffer_number) {
-	vkEndCommandBuffer(m_command_buffer[buffer_number]);
+	ErrorCheck(vkEndCommandBuffer(m_command_buffer[buffer_number]));
 }
 
 void Renderer::QueueCommandBuffer(uint32_t buffer_number) {
@@ -78,7 +78,7 @@ void Renderer::QueueCommandBuffer(uint32_t buffer_number) {
 	submit_info.pCommandBuffers = &m_command_buffer[buffer_number];
 	submit_info.signalSemaphoreCount = 1;
 	submit_info.pSignalSemaphores = &m_semaphore;
-	vkQueueSubmit(m_queue, 1, &submit_info, VK_NULL_HANDLE);
+	ErrorCheck(vkQueueSubmit(m_queue, 1, &submit_info, VK_NULL_HANDLE));
 }
 
 void Renderer::QueueCommandBuffer(uint32_t buffer_number, VkPipelineStageFlags flags[]) {
@@ -89,11 +89,11 @@ void Renderer::QueueCommandBuffer(uint32_t buffer_number, VkPipelineStageFlags f
 	submit_info.waitSemaphoreCount = 1;
 	submit_info.pWaitSemaphores = &m_semaphore;
 	submit_info.pWaitDstStageMask = flags;
-	vkQueueSubmit(m_queue, 1, &submit_info, VK_NULL_HANDLE);
+	ErrorCheck(vkQueueSubmit(m_queue, 1, &submit_info, VK_NULL_HANDLE));
 }
 
 void Renderer::WaitCommandBuffer() {
-	vkQueueWaitIdle(m_queue);
+	ErrorCheck(vkQueueWaitIdle(m_queue));
 }
 
 const VkInstance Renderer::GetVulkanInstance() const {
@@ -136,7 +136,7 @@ void Renderer::InitInstance()
 	//remember to always default initialise with the struct operator{}
 	VkApplicationInfo appInfo{};
 	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-	appInfo.apiVersion = VK_MAKE_VERSION(1, 0, 3);
+	appInfo.apiVersion = VK_MAKE_VERSION(1, 0, 30);
 	appInfo.applicationVersion = VK_MAKE_VERSION(0, 1, 0);
 	appInfo.pApplicationName = "Vulkan First";
 
@@ -470,6 +470,7 @@ void Renderer::DeInitRenderPass() {
 }
 
 void Renderer::InitFrameBuffer() {
+	WaitCommandBuffer();
 	BeginCommandBuffer(0);
 	VkImageView frame_buffer_views[2];
 	frame_buffer_views[1] = m_window->GetDepthBuffer();
@@ -496,9 +497,8 @@ void Renderer::InitFrameBuffer() {
 
 	
 	EndCommandBuffer(0);
-	
-	//QueueCommandBuffer(0);
-	//WaitCommandBuffer();
+	QueueCommandBuffer(0);
+	WaitCommandBuffer();
 	
 }
 
@@ -649,22 +649,28 @@ void Renderer::SetupDebug() {
 		VK_DEBUG_REPORT_FLAG_BITS_MAX_ENUM_EXT |
 		0;
 
+	uint32_t layerCount;
+	vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+
+	std::vector<VkLayerProperties> availableLayers(layerCount);
+	vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+
 	m_instance_layer_list.push_back("VK_LAYER_LUNARG_standard_validation");
 	m_instance_extention_list.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
-	/*VK_LAYER_LUNARG_api_dump
-	VK_LAYER_LUNARG_core_validation
-	VK_LAYER_LUNARG_image
-	VK_LAYER_LUNARG_object_tracker
-	VK_LAYER_LUNARG_parameter_validation
-	VK_LAYER_LUNARG_screenshot
-	VK_LAYER_LUNARG_swapchain
-	VK_LAYER_GOOGLE_threading
-	VK_LAYER_GOOGLE_unique_objects
-	VK_LAYER_LUNARG_vktrace
-	VK_LAYER_RENDERDOC_Capture
-	VK_LAYER_VALVE_steam_overlay
-	VK_LAYER_LUNARG_standard_validation*/
-	m_device_layer_list.push_back("VK_LAYER_LUNARG_standard_validation");
+	//m_instance_layer_list.push_back("VK_LAYER_LUNARG_api_dump");
+	//m_instance_layer_list.push_back("VK_LAYER_LUNARG_core_validation");
+	//m_instance_layer_list.push_back("VK_LAYER_LUNARG_image");
+	//m_instance_layer_list.push_back("VK_LAYER_LUNARG_object_tracker");
+	//m_instance_layer_list.push_back("VK_LAYER_LUNARG_parameter_validation");
+	//m_instance_layer_list.push_back("VK_LAYER_LUNARG_screenshot");
+	//m_instance_layer_list.push_back("VK_LAYER_LUNARG_swapchain");
+	//m_instance_layer_list.push_back("VK_LAYER_GOOGLE_threading");
+	//m_instance_layer_list.push_back("VK_LAYER_GOOGLE_unique_objects");
+	////m_instance_layer_list.push_back("VK_LAYER_LUNARG_vktrace");
+	//m_instance_layer_list.push_back("VK_LAYER_RENDERDOC_Capture");
+	//m_instance_layer_list.push_back("VK_LAYER_VALVE_steam_overlay");
+	//m_instance_layer_list.push_back("VK_LAYER_LUNARG_standard_validation");
+	//m_device_layer_list.push_back("VK_LAYER_LUNARG_standard_validation");
 }
 
 PFN_vkCreateDebugReportCallbackEXT fvkCreateDebugReportCallbackEXT = nullptr;
