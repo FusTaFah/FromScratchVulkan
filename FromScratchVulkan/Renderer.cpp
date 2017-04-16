@@ -78,6 +78,7 @@ void Renderer::QueueCommandBuffer(uint32_t buffer_number) {
 	submit_info.pCommandBuffers = &m_command_buffer[buffer_number];
 	submit_info.signalSemaphoreCount = 1;
 	submit_info.pSignalSemaphores = &m_semaphore;
+	
 	ErrorCheck(vkQueueSubmit(m_queue, 1, &submit_info, VK_NULL_HANDLE));
 }
 
@@ -336,6 +337,7 @@ void Renderer::InitCommandBuffer() {
 }
 
 void Renderer::DeInitCommandBuffer() {
+	WaitCommandBuffer();
 	vkDestroyCommandPool(m_device, m_command_pool, nullptr);
 	vkDestroyFence(m_device, m_fence, nullptr);
 	vkDestroySemaphore(m_device, m_semaphore, nullptr);
@@ -411,6 +413,10 @@ void Renderer::InitRenderPass() {
 	vkCmdPipelineBarrier(m_command_buffer[0], source_stages, destination_stages, 0, 0, nullptr, 0, nullptr, 1, &image_memory_barrier);
 
 	EndCommandBuffer(0);
+	//WaitCommandBuffer();
+	VkPipelineStageFlags flags[] = { VK_PIPELINE_STAGE_ALL_COMMANDS_BIT };
+	QueueCommandBuffer(0, flags);
+	
 
 	VkAttachmentDescription attachment_descriptions[2];
 	attachment_descriptions[0].format = m_window->GetSurfaceFormatKHR().format;
@@ -471,6 +477,7 @@ void Renderer::DeInitRenderPass() {
 
 void Renderer::InitFrameBuffer() {
 	WaitCommandBuffer();
+
 	BeginCommandBuffer(0);
 	VkImageView frame_buffer_views[2];
 	frame_buffer_views[1] = m_window->GetDepthBuffer();
@@ -495,10 +502,11 @@ void Renderer::InitFrameBuffer() {
 		ErrorCheck(vkCreateFramebuffer(m_device, &frame_buffer_create_info, VK_NULL_HANDLE, &m_frame_buffers[i]));
 	}
 
-	
 	EndCommandBuffer(0);
+
+	//VkPipelineStageFlags flags[] = { VK_PIPELINE_STAGE_ALL_COMMANDS_BIT };
 	QueueCommandBuffer(0);
-	WaitCommandBuffer();
+	
 	
 }
 
