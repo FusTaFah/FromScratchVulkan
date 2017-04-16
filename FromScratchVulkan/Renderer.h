@@ -50,6 +50,9 @@ private:
 	void InitFrameBuffer();
 	void DeInitFrameBuffer();
 
+	void InitVertexBuffer();
+	void DeInitVertexBuffer();
+
 	void SetupDebug();
 	void InitDebug();
 	void DeInitDebug();
@@ -77,4 +80,5 @@ private:
 	VkRenderPass m_render_pass;
 	VkPipelineShaderStageCreateInfo m_pipeline_shader_stage_create_info[2];
 	VkFramebuffer * m_frame_buffers;
+	VkBuffer m_vertex_buffer;
 };

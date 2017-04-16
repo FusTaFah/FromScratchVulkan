@@ -475,68 +475,26 @@ void Renderer::DeInitRenderPass() {
 	vkDestroyRenderPass(m_device, m_render_pass, VK_NULL_HANDLE);
 }
 
-void Renderer::InitFrameBuffer() {
-	WaitCommandBuffer();
-
-	BeginCommandBuffer(0);
-	VkImageView frame_buffer_views[2];
-	frame_buffer_views[1] = m_window->GetDepthBuffer();
-
-	VkFramebufferCreateInfo frame_buffer_create_info{};
-	frame_buffer_create_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-	frame_buffer_create_info.pNext = VK_NULL_HANDLE;
-	frame_buffer_create_info.renderPass = m_render_pass;
-	frame_buffer_create_info.attachmentCount = 2;
-	frame_buffer_create_info.pAttachments = frame_buffer_views;
-	frame_buffer_create_info.width = m_window->GetSurfaceSizeX();
-	frame_buffer_create_info.height = m_window->GetSurfaceSizeY();
-	frame_buffer_create_info.layers = 1;
-
-	m_frame_buffers = (VkFramebuffer *)malloc(m_window->GetSwapchainImageCount() * sizeof(VkFramebuffer));
-	if (m_frame_buffers == 0) {
-		assert(0 && "Could not allocate memory for frame buffers; either they haven't been created or your OS is fucked");
-	}
-
-	for (int i = 0; i < m_window->GetSwapchainImageCount(); i++) {
-		frame_buffer_views[0] = m_window->GetSwapchainImageViews()[i];
-		ErrorCheck(vkCreateFramebuffer(m_device, &frame_buffer_create_info, VK_NULL_HANDLE, &m_frame_buffers[i]));
-	}
-
-	EndCommandBuffer(0);
-
-	//VkPipelineStageFlags flags[] = { VK_PIPELINE_STAGE_ALL_COMMANDS_BIT };
-	QueueCommandBuffer(0);
-	
-	
-}
-
-void Renderer::DeInitFrameBuffer() {
-	for (int i = 0; i < m_window->GetSwapchainImageCount(); i++) {
-		vkDestroyFramebuffer(m_device, m_frame_buffers[i], VK_NULL_HANDLE);
-	}
-	free(m_frame_buffers);
-}
-
 void Renderer::InitShaders() {
 	static const char * vertex_shader_text =
 		"#version 400\n"
-        "#extension GL_ARB_separate_shader_objects : enable\n"
-        "#extension GL_ARB_shading_language_420pack : enable\n"
-        "layout (std140, binding = 0) uniform bufferVals {\n"
-        "    mat4 mvp;\n"
-        "} myBufferVals;\n"
-        "layout (location = 0) in vec4 pos;\n"
-        "layout (location = 1) in vec4 inColor;\n"
-        "layout (location = 0) out vec4 outColor;\n"
-        "out gl_PerVertex { \n"
-        "    vec4 gl_Position;\n"
-        "};\n"
-        "void main() {\n"
-        "   outColor = inColor;\n"
-        "   gl_Position = myBufferVals.mvp * pos;\n"
+		"#extension GL_ARB_separate_shader_objects : enable\n"
+		"#extension GL_ARB_shading_language_420pack : enable\n"
+		"layout (std140, binding = 0) uniform bufferVals {\n"
+		"    mat4 mvp;\n"
+		"} myBufferVals;\n"
+		"layout (location = 0) in vec4 pos;\n"
+		"layout (location = 1) in vec4 inColor;\n"
+		"layout (location = 0) out vec4 outColor;\n"
+		"out gl_PerVertex { \n"
+		"    vec4 gl_Position;\n"
+		"};\n"
+		"void main() {\n"
+		"   outColor = inColor;\n"
+		"   gl_Position = myBufferVals.mvp * pos;\n"
 		"}\n";
 
-	static const char * fragment_shader_text = 
+	static const char * fragment_shader_text =
 		"#version 400\n"
 		"#extension GL_ARB_separate_shader_objects : enable\n"
 		"#extension GL_ARB_shading_language_420pack : enable\n"
@@ -555,7 +513,7 @@ void Renderer::InitShaders() {
 	m_pipeline_shader_stage_create_info[0].pName = "main";
 
 	glslang::InitializeProcess();
-	
+
 	bool vertex_shader_result = GLSLtoSPV(VK_SHADER_STAGE_VERTEX_BIT, vertex_shader_text, vertex_shader_SPIR_V);
 	if (!vertex_shader_result) {
 		assert(0 && "Shader could not be converted from GLSL to SPIR_V");
@@ -569,7 +527,7 @@ void Renderer::InitShaders() {
 	vertex_shader_module_create_info.pCode = vertex_shader_SPIR_V.data();
 
 	ErrorCheck(vkCreateShaderModule(m_device, &vertex_shader_module_create_info, VK_NULL_HANDLE, &m_pipeline_shader_stage_create_info[0].module));
-	
+
 	std::vector<unsigned int> fragment_shader_SPIR_V;
 	m_pipeline_shader_stage_create_info[1].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 	m_pipeline_shader_stage_create_info[1].pNext = VK_NULL_HANDLE;
@@ -599,6 +557,55 @@ void Renderer::DeInitShaders() {
 	for (int i = 0; i < 2; i++) {
 		vkDestroyShaderModule(m_device, m_pipeline_shader_stage_create_info[i].module, VK_NULL_HANDLE);
 	}
+}
+
+void Renderer::InitFrameBuffer() {
+	WaitCommandBuffer();
+
+	BeginCommandBuffer(0);
+	VkImageView frame_buffer_views[2];
+	frame_buffer_views[1] = m_window->GetDepthBuffer();
+
+	VkFramebufferCreateInfo frame_buffer_create_info{};
+	frame_buffer_create_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+	frame_buffer_create_info.pNext = VK_NULL_HANDLE;
+	frame_buffer_create_info.renderPass = m_render_pass;
+	frame_buffer_create_info.attachmentCount = 2;
+	frame_buffer_create_info.pAttachments = frame_buffer_views;
+	frame_buffer_create_info.width = m_window->GetSurfaceSizeX();
+	frame_buffer_create_info.height = m_window->GetSurfaceSizeY();
+	frame_buffer_create_info.layers = 1;
+
+	m_frame_buffers = (VkFramebuffer *)malloc(m_window->GetSwapchainImageCount() * sizeof(VkFramebuffer));
+	if (m_frame_buffers == 0) {
+		assert(0 && "Could not allocate memory for frame buffers; either they haven't been created or your OS is fucked");
+	}
+
+	for (int i = 0; i < m_window->GetSwapchainImageCount(); i++) {
+		frame_buffer_views[0] = m_window->GetSwapchainImageViews()[i];
+		ErrorCheck(vkCreateFramebuffer(m_device, &frame_buffer_create_info, VK_NULL_HANDLE, &m_frame_buffers[i]));
+	}
+
+	EndCommandBuffer(0);
+	//we aren't executing Cmd(s) so chill with the pipeline stage b0ss
+	//VkPipelineStageFlags flags[] = { VK_PIPELINE_STAGE_ALL_COMMANDS_BIT };
+	QueueCommandBuffer(0);
+}
+
+void Renderer::DeInitFrameBuffer() {
+	for (int i = 0; i < m_window->GetSwapchainImageCount(); i++) {
+		vkDestroyFramebuffer(m_device, m_frame_buffers[i], VK_NULL_HANDLE);
+	}
+	free(m_frame_buffers);
+}
+
+void Renderer::InitVertexBuffer() {
+
+}
+
+void Renderer::DeInitVertexBuffer() {
+	vkDestroyBuffer(m_device, m_vertex_buffer, VK_NULL_HANDLE);
+	free(&m_vertex_buffer);
 }
 
 #if BUILD_OPTIONS_DEBUG
