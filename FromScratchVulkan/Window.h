@@ -44,8 +44,8 @@ private:
 
 	VkSwapchainKHR m_swapchain;
 
-	uint32_t m_surface_size_x = 512;
-	uint32_t m_surface_size_y = 512;
+	uint32_t m_surface_size_x;
+	uint32_t m_surface_size_y;
 	std::string m_window_name;
 	uint32_t m_swapchain_image_count;
 

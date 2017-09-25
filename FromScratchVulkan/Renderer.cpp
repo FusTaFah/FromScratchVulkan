@@ -33,9 +33,11 @@ Renderer::Renderer() {
 	InitCommandBuffer();
 	m_pipeline = new Pipeline(this);
 	InitShaders();
+	
 }
 
 Renderer::~Renderer() {
+	DeInitVertexBuffer();
 	DeInitFrameBuffer();
 	DeInitShaders();
 	DeInitRenderPass();
@@ -51,6 +53,7 @@ Window * Renderer::CreateVulkanWindow(uint32_t size_x, uint32_t size_y, std::str
 	m_window = new Window(this, size_x, size_y, name);
 	InitRenderPass();
 	InitFrameBuffer();
+	InitVertexBuffer();
 	return m_window;
 }
 
@@ -600,12 +603,260 @@ void Renderer::DeInitFrameBuffer() {
 }
 
 void Renderer::InitVertexBuffer() {
+	BeginCommandBuffer(0);
 
+	const vertex_data g_vbData[] = {
+		vertex_data(glm::vec3(-1, -1, -1), glm::vec3(0.f, 0.f, 0.f)),
+		vertex_data(glm::vec3(1, -1, -1), glm::vec3(1.f, 0.f, 0.f)),
+		vertex_data(glm::vec3(-1,  1, -1), glm::vec3(0.f, 1.f, 0.f)),
+		vertex_data(glm::vec3(-1,  1, -1), glm::vec3(0.f, 1.f, 0.f)),
+		vertex_data(glm::vec3(1, -1, -1), glm::vec3(1.f, 0.f, 0.f)),
+		vertex_data(glm::vec3(1,  1, -1), glm::vec3(1.f, 1.f, 0.f)),
+
+		vertex_data(glm::vec3(-1, -1,  1), glm::vec3(0.f, 0.f, 1.f)),
+		vertex_data(glm::vec3(-1,  1,  1), glm::vec3(0.f, 1.f, 1.f)),
+		vertex_data(glm::vec3(1, -1,  1), glm::vec3(1.f, 0.f, 1.f)),
+		vertex_data(glm::vec3(1, -1,  1), glm::vec3(1.f, 0.f, 1.f)),
+		vertex_data(glm::vec3(-1,  1,  1), glm::vec3(0.f, 1.f, 1.f)),
+		vertex_data(glm::vec3(1,  1,  1), glm::vec3(1.f, 1.f, 1.f)),
+
+		vertex_data(glm::vec3(1,  1,  1), glm::vec3(1.f, 1.f, 1.f)),
+		vertex_data(glm::vec3(1,  1, -1), glm::vec3(1.f, 1.f, 0.f)),
+		vertex_data(glm::vec3(1, -1,  1), glm::vec3(1.f, 0.f, 1.f)),
+		vertex_data(glm::vec3(1, -1,  1), glm::vec3(1.f, 0.f, 1.f)),
+		vertex_data(glm::vec3(1,  1, -1), glm::vec3(1.f, 1.f, 0.f)),
+		vertex_data(glm::vec3(1, -1, -1), glm::vec3(1.f, 0.f, 0.f)),
+
+		vertex_data(glm::vec3(-1,  1,  1), glm::vec3(0.f, 1.f, 1.f)),
+		vertex_data(glm::vec3(-1, -1,  1), glm::vec3(0.f, 0.f, 1.f)),
+		vertex_data(glm::vec3(-1,  1, -1), glm::vec3(0.f, 1.f, 0.f)),
+		vertex_data(glm::vec3(-1,  1, -1), glm::vec3(0.f, 1.f, 0.f)),
+		vertex_data(glm::vec3(-1, -1,  1), glm::vec3(0.f, 0.f, 1.f)),
+		vertex_data(glm::vec3(-1, -1, -1), glm::vec3(0.f, 0.f, 0.f)),
+
+		vertex_data(glm::vec3(1,  1,  1), glm::vec3(1.f, 1.f, 1.f)),
+		vertex_data(glm::vec3(-1,  1,  1), glm::vec3(0.f, 1.f, 1.f)),
+		vertex_data(glm::vec3(1,  1, -1), glm::vec3(1.f, 1.f, 0.f)),
+		vertex_data(glm::vec3(1,  1, -1), glm::vec3(1.f, 1.f, 0.f)),
+		vertex_data(glm::vec3(-1,  1,  1), glm::vec3(0.f, 1.f, 1.f)),
+		vertex_data(glm::vec3(-1,  1, -1), glm::vec3(0.f, 1.f, 0.f)),
+
+		vertex_data(glm::vec3(1, -1,  1), glm::vec3(1.f, 0.f, 1.f)),
+		vertex_data(glm::vec3(1, -1, -1), glm::vec3(1.f, 0.f, 0.f)),
+		vertex_data(glm::vec3(-1, -1,  1), glm::vec3(0.f, 0.f, 1.f)),
+		vertex_data(glm::vec3(-1, -1,  1), glm::vec3(0.f, 0.f, 1.f)),
+		vertex_data(glm::vec3(1, -1, -1), glm::vec3(1.f, 0.f, 0.f)),
+		vertex_data(glm::vec3(-1, -1, -1), glm::vec3(0.f, 0.f, 0.f)),
+	};
+
+	const vertex_data g_vb_solid_face_colors_Data[] = {
+		//red face
+		vertex_data(glm::vec3(-1, -1,  1), glm::vec3(1.f, 0.f, 0.f)),
+		vertex_data(glm::vec3(-1,  1,  1), glm::vec3(1.f, 0.f, 0.f)),
+		vertex_data(glm::vec3(1, -1,  1), glm::vec3(1.f, 0.f, 0.f)),
+		vertex_data(glm::vec3(1, -1,  1), glm::vec3(1.f, 0.f, 0.f)),
+		vertex_data(glm::vec3(-1,  1,  1), glm::vec3(1.f, 0.f, 0.f)),
+		vertex_data(glm::vec3(1,  1,  1), glm::vec3(1.f, 0.f, 0.f)),
+		//green face
+		vertex_data(glm::vec3(-1, -1, -1), glm::vec3(0.f, 1.f, 0.f)),
+		vertex_data(glm::vec3(1, -1, -1), glm::vec3(0.f, 1.f, 0.f)),
+		vertex_data(glm::vec3(-1,  1, -1), glm::vec3(0.f, 1.f, 0.f)),
+		vertex_data(glm::vec3(-1,  1, -1), glm::vec3(0.f, 1.f, 0.f)),
+		vertex_data(glm::vec3(1, -1, -1), glm::vec3(0.f, 1.f, 0.f)),
+		vertex_data(glm::vec3(1,  1, -1), glm::vec3(0.f, 1.f, 0.f)),
+		//blue face
+		vertex_data(glm::vec3(-1,  1,  1), glm::vec3(0.f, 0.f, 1.f)),
+		vertex_data(glm::vec3(-1, -1,  1), glm::vec3(0.f, 0.f, 1.f)),
+		vertex_data(glm::vec3(-1,  1, -1), glm::vec3(0.f, 0.f, 1.f)),
+		vertex_data(glm::vec3(-1,  1, -1), glm::vec3(0.f, 0.f, 1.f)),
+		vertex_data(glm::vec3(-1, -1,  1), glm::vec3(0.f, 0.f, 1.f)),
+		vertex_data(glm::vec3(-1, -1, -1), glm::vec3(0.f, 0.f, 1.f)),
+		//yellow face
+		vertex_data(glm::vec3(1,  1,  1), glm::vec3(1.f, 1.f, 0.f)),
+		vertex_data(glm::vec3(1,  1, -1), glm::vec3(1.f, 1.f, 0.f)),
+		vertex_data(glm::vec3(1, -1,  1), glm::vec3(1.f, 1.f, 0.f)),
+		vertex_data(glm::vec3(1, -1,  1), glm::vec3(1.f, 1.f, 0.f)),
+		vertex_data(glm::vec3(1,  1, -1), glm::vec3(1.f, 1.f, 0.f)),
+		vertex_data(glm::vec3(1, -1, -1), glm::vec3(1.f, 1.f, 0.f)),
+		//magenta face
+		vertex_data(glm::vec3(1,  1,  1), glm::vec3(1.f, 0.f, 1.f)),
+		vertex_data(glm::vec3(-1,  1,  1), glm::vec3(1.f, 0.f, 1.f)),
+		vertex_data(glm::vec3(1,  1, -1), glm::vec3(1.f, 0.f, 1.f)),
+		vertex_data(glm::vec3(1,  1, -1), glm::vec3(1.f, 0.f, 1.f)),
+		vertex_data(glm::vec3(-1,  1,  1), glm::vec3(1.f, 0.f, 1.f)),
+		vertex_data(glm::vec3(-1,  1, -1), glm::vec3(1.f, 0.f, 1.f)),
+		//cyan face
+		vertex_data(glm::vec3(1, -1,  1), glm::vec3(0.f, 1.f, 1.f)),
+		vertex_data(glm::vec3(1, -1, -1), glm::vec3(0.f, 1.f, 1.f)),
+		vertex_data(glm::vec3(-1, -1,  1), glm::vec3(0.f, 1.f, 1.f)),
+		vertex_data(glm::vec3(-1, -1,  1), glm::vec3(0.f, 1.f, 1.f)),
+		vertex_data(glm::vec3(1, -1, -1), glm::vec3(0.f, 1.f, 1.f)),
+		vertex_data(glm::vec3(-1, -1, -1), glm::vec3(0.f, 1.f, 1.f))
+	};
+
+	const vertex_uv_data gg[] = {
+		//left face
+		vertex_uv_data(glm::vec3(-1, -1, -1), glm::vec2(1.f, 0.f)),
+		vertex_uv_data(glm::vec3(-1,  1,  1), glm::vec2(0.f, 1.f)),
+		vertex_uv_data(glm::vec3(-1, -1,  1), glm::vec2(0.f, 0.f)),
+		vertex_uv_data(glm::vec3(-1,  1,  1), glm::vec2(0.f, 1.f)),
+		vertex_uv_data(glm::vec3(-1, -1, -1), glm::vec2(1.f, 0.f)),
+		vertex_uv_data(glm::vec3(-1,  1, -1), glm::vec2(1.f, 1.f)),
+		// front face
+		vertex_uv_data(glm::vec3(-1, -1, -1), glm::vec2(0.f, 0.f)),
+		vertex_uv_data(glm::vec3(1, -1, -1), glm::vec2(1.f, 0.f)),
+		vertex_uv_data(glm::vec3(1,  1, -1), glm::vec2(1.f, 1.f)),
+		vertex_uv_data(glm::vec3(-1, -1, -1), glm::vec2(0.f, 0.f)),
+		vertex_uv_data(glm::vec3(1,  1, -1), glm::vec2(1.f, 1.f)),
+		vertex_uv_data(glm::vec3(-1,  1, -1), glm::vec2(0.f, 1.f)),
+		// top face
+		vertex_uv_data(glm::vec3(-1, -1, -1), glm::vec2(0.f, 1.f)),
+		vertex_uv_data(glm::vec3(1, -1,  1), glm::vec2(1.f, 0.f)),
+		vertex_uv_data(glm::vec3(1, -1, -1), glm::vec2(1.f, 1.f)),
+		vertex_uv_data(glm::vec3(-1, -1, -1), glm::vec2(0.f, 1.f)),
+		vertex_uv_data(glm::vec3(-1, -1,  1), glm::vec2(0.f, 0.f)),
+		vertex_uv_data(glm::vec3(1, -1,  1), glm::vec2(1.f, 0.f)),
+		// bottom face
+		vertex_uv_data(glm::vec3(-1,  1, -1), glm::vec2(0.f, 0.f)),
+		vertex_uv_data(glm::vec3(1,  1,  1), glm::vec2(1.f, 1.f)),
+		vertex_uv_data(glm::vec3(-1,  1,  1), glm::vec2(0.f, 1.f)),
+		vertex_uv_data(glm::vec3(-1,  1, -1), glm::vec2(0.f, 0.f)),
+		vertex_uv_data(glm::vec3(1,  1, -1), glm::vec2(1.f, 0.f)),
+		vertex_uv_data(glm::vec3(1,  1,  1), glm::vec2(1.f, 1.f)),
+		// right face
+		vertex_uv_data(glm::vec3(1,  1, -1), glm::vec2(0.f, 1.f)),
+		vertex_uv_data(glm::vec3(1, -1,  1), glm::vec2(1.f, 0.f)),
+		vertex_uv_data(glm::vec3(1,  1,  1), glm::vec2(1.f, 1.f)),
+		vertex_uv_data(glm::vec3(1, -1,  1), glm::vec2(1.f, 0.f)),
+		vertex_uv_data(glm::vec3(1,  1, -1), glm::vec2(0.f, 1.f)),
+		vertex_uv_data(glm::vec3(1, -1, -1), glm::vec2(0.f, 0.f)),
+		// back face
+		vertex_uv_data(glm::vec3(-1,  1,  1), glm::vec2(1.f, 1.f)),
+		vertex_uv_data(glm::vec3(1,  1,  1), glm::vec2(0.f, 1.f)),
+		vertex_uv_data(glm::vec3(-1, -1,  1), glm::vec2(1.f, 0.f)),
+		vertex_uv_data(glm::vec3(-1, -1,  1), glm::vec2(1.f, 0.f)),
+		vertex_uv_data(glm::vec3(1,  1,  1), glm::vec2(0.f, 1.f)),
+		vertex_uv_data(glm::vec3(1, -1,  1), glm::vec2(0.f, 0.f)),
+	};
+
+	VkBufferCreateInfo buffer_create_info{};
+	buffer_create_info.pNext = VK_NULL_HANDLE;
+	buffer_create_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+	buffer_create_info.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+	buffer_create_info.size = sizeof(g_vb_solid_face_colors_Data);
+	buffer_create_info.queueFamilyIndexCount = 0;
+	buffer_create_info.pQueueFamilyIndices = VK_NULL_HANDLE;
+	buffer_create_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+	buffer_create_info.flags = 0;
+
+	VkMemoryRequirements memory_requirements;
+	vkGetBufferMemoryRequirements(m_device, m_vertex_buffer, &memory_requirements);
+
+	VkMemoryAllocateInfo memory_allocate_info{};
+	memory_allocate_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	memory_allocate_info.pNext = VK_NULL_HANDLE;
+	memory_allocate_info.memoryTypeIndex = 0;
+	memory_allocate_info.allocationSize = memory_requirements.size;
+
+	memory_types_from_properties(memory_requirements.memoryTypeBits, 0, &memory_allocate_info.memoryTypeIndex, m_gpu_memory_properties);
+
+	ErrorCheck(vkAllocateMemory(m_device, &memory_allocate_info, VK_NULL_HANDLE, &m_vertex_buffer_memory));
+
+	uint8_t *pData;
+
+	ErrorCheck(vkMapMemory(m_device, m_vertex_buffer_memory, 0, memory_requirements.size, 0, (void**)&pData));
+
+	memcpy(pData, g_vb_solid_face_colors_Data, sizeof(g_vb_solid_face_colors_Data));
+
+	vkUnmapMemory(m_device, m_vertex_buffer_memory);
+
+	ErrorCheck(vkBindBufferMemory(m_device, m_vertex_buffer, m_vertex_buffer_memory, 0));
+
+	m_vertex_input_binding_description.binding = 0;
+	m_vertex_input_binding_description.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+	m_vertex_input_binding_description.stride = sizeof(g_vb_solid_face_colors_Data[0]);
+
+	m_vertex_input_attribute_descriptions[0].binding = 0;
+	m_vertex_input_attribute_descriptions[0].location = 0;
+	m_vertex_input_attribute_descriptions[0].format = VK_FORMAT_R32G32B32A32_SFLOAT;
+	m_vertex_input_attribute_descriptions[0].offset = 0;
+	m_vertex_input_attribute_descriptions[1].binding = 0;
+	m_vertex_input_attribute_descriptions[1].location = 1;
+	m_vertex_input_attribute_descriptions[1].format = VK_FORMAT_R32G32B32A32_SFLOAT;
+	m_vertex_input_attribute_descriptions[1].offset = sizeof(glm::vec3);
+
+	const VkDeviceSize device_size_offsets[1] = { 0 };
+
+	VkClearValue clear_values[2];
+	clear_values[0].color.float32[0] = 0.2f;
+	clear_values[0].color.float32[1] = 0.2f;
+	clear_values[0].color.float32[2] = 0.2f;
+	clear_values[0].color.float32[3] = 0.2f;
+	clear_values[1].depthStencil.depth = 1.0f;
+	clear_values[1].depthStencil.stencil = 0;
+
+	VkSemaphore image_aquired_semaphore;
+	VkSemaphoreCreateInfo image_aquired_semaphore_create_info{};
+	image_aquired_semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+	image_aquired_semaphore_create_info.pNext = VK_NULL_HANDLE;
+	image_aquired_semaphore_create_info.flags = 0;
+
+	ErrorCheck(vkCreateSemaphore(m_device, &image_aquired_semaphore_create_info, VK_NULL_HANDLE, &image_aquired_semaphore));
+
+	uint32_t current_image;
+
+	ErrorCheck(vkAcquireNextImageKHR(m_device, m_window->GetSwapchain(), UINT64_MAX, image_aquired_semaphore, VK_NULL_HANDLE, &current_image));
+
+	VkImageMemoryBarrier image_memory_barrier{};
+	image_memory_barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	image_memory_barrier.pNext = VK_NULL_HANDLE;
+	image_memory_barrier.srcAccessMask = 0;
+	image_memory_barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	image_memory_barrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	image_memory_barrier.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	image_memory_barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	image_memory_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	image_memory_barrier.image = m_window->GetSwapchainImages()[current_image];
+	image_memory_barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	image_memory_barrier.subresourceRange.baseMipLevel = 0;
+	image_memory_barrier.subresourceRange.levelCount = 1;
+	image_memory_barrier.subresourceRange.baseArrayLayer = 0;
+	image_memory_barrier.subresourceRange.layerCount = 1;
+
+	VkPipelineStageFlags source_stages = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+	VkPipelineStageFlags destination_stages = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+
+	vkCmdPipelineBarrier(m_command_buffer[0], source_stages, destination_stages, 0, 0, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, 1, &image_memory_barrier);
+
+	VkRenderPassBeginInfo render_pass_begin_info{};
+	render_pass_begin_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	render_pass_begin_info.pNext = VK_NULL_HANDLE;
+	render_pass_begin_info.renderPass = m_render_pass;
+	render_pass_begin_info.framebuffer = m_frame_buffers[current_image];
+	render_pass_begin_info.renderArea.offset.x = 0;
+	render_pass_begin_info.renderArea.offset.y = 0;
+	render_pass_begin_info.renderArea.extent.width = m_window->GetSurfaceSizeX();
+	render_pass_begin_info.renderArea.extent.height = m_window->GetSurfaceSizeY();
+	render_pass_begin_info.clearValueCount = 2;
+	render_pass_begin_info.pClearValues = clear_values;
+
+	vkCmdBeginRenderPass(m_command_buffer[0], &render_pass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
+
+	vkCmdBindVertexBuffers(m_command_buffer[0], 0, 1, &m_vertex_buffer, device_size_offsets);
+
+	vkCmdEndRenderPass(m_command_buffer[0]);
+
+	EndCommandBuffer(0);
+
+	QueueCommandBuffer(0);
+
+	vkDestroySemaphore(m_device, image_aquired_semaphore, VK_NULL_HANDLE);
 }
 
 void Renderer::DeInitVertexBuffer() {
 	vkDestroyBuffer(m_device, m_vertex_buffer, VK_NULL_HANDLE);
-	free(&m_vertex_buffer);
+	//free(&m_vertex_buffer);
+	vkFreeMemory(m_device, m_vertex_buffer_memory, VK_NULL_HANDLE);
 }
 
 #if BUILD_OPTIONS_DEBUG
@@ -670,7 +921,8 @@ void Renderer::SetupDebug() {
 	std::vector<VkLayerProperties> availableLayers(layerCount);
 	vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
 
-	m_instance_layer_list.push_back("VK_LAYER_LUNARG_standard_validation");
+	//m_instance_layer_list.push_back("VK_LAYER_LUNARG_standard_validation");
+	m_instance_layer_list.push_back("VK_LAYER_NV_optimus");
 	m_instance_extention_list.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
 	//m_instance_layer_list.push_back("VK_LAYER_LUNARG_api_dump");
 	//m_instance_layer_list.push_back("VK_LAYER_LUNARG_core_validation");

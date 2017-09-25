@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -21,32 +21,32 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A6DF0A0A-1568-4B55-93EC-EE43EC01C025}</ProjectGuid>
     <RootNamespace>FromScratchVulkan</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -77,7 +77,7 @@
     <LibraryPath>C:\VulkanSDK\1.0.30.0\Bin32;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\VulkanSDK\1.0.30.0\spirv-tools\include;C:\VulkanSDK\1.0.30.0\glslang;C:\VulkanSDK\1.0.30.0\Include;C:\Users\mfade\Documents\Visual Studio 2015\Projects\FromScratchVulkan\glm;%(AdditionalIncludeDirectories);$(IncludePath)</IncludePath>
+    <IncludePath>C:\VulkanSDK\1.0.30.0\spirv-tools\include;C:\VulkanSDK\1.0.30.0\glslang;C:\VulkanSDK\1.0.30.0\Include;C:\glm-0.9.9-a1;%(AdditionalIncludeDirectories);$(IncludePath)</IncludePath>
     <LibraryPath>C:\VulkanSDK\1.0.30.0\Bin;C:\VulkanSDK\1.0.30.0\glslang\build\glslang\OSDependent\Windows\Debug;C:\VulkanSDK\1.0.30.0\glslang\build\StandAlone\Debug;C:\VulkanSDK\1.0.30.0\glslang\build\OGLCompilersDLL\Debug;C:\VulkanSDK\1.0.30.0\glslang\build\hlsl\Debug;C:\VulkanSDK\1.0.30.0\glslang\build\SPIRV\Debug;C:\VulkanSDK\1.0.30.0\spirv-tools\build\source\Debug;C:\VulkanSDK\1.0.30.0\glslang\build\glslang\Debug;C:\VulkanSDK\1.0.30.0\Source\lib;%(AdditionalLibraryDirectories);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

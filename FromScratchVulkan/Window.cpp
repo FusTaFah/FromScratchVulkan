@@ -220,8 +220,8 @@ void Window::InitDepthBuffer() {
 	memory_allocate_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 	memory_allocate_info.pNext = VK_NULL_HANDLE;
 	memory_allocate_info.allocationSize = memreqs.size;
-	memory_allocate_info.memoryTypeIndex = memory_types_from_properties(memreqs.memoryTypeBits, 0, &memory_allocate_info.memoryTypeIndex, m_renderer->GetPhysicalDeviceMemoryProperties());
-
+	memory_allocate_info.memoryTypeIndex = 0;
+	memory_types_from_properties(memreqs.memoryTypeBits, 0, &memory_allocate_info.memoryTypeIndex, m_renderer->GetPhysicalDeviceMemoryProperties());
 	ErrorCheck(vkAllocateMemory(m_renderer->GetVulkanDevice(), &memory_allocate_info, nullptr, &m_depth_buffer_memory));
 
 	ErrorCheck(vkBindImageMemory(m_renderer->GetVulkanDevice(), m_image, m_depth_buffer_memory, 0));

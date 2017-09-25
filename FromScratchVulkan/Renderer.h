@@ -60,6 +60,7 @@ private:
 	VkInstance m_instance;
 	VkPhysicalDevice m_gpu;
 	VkDevice m_device;
+	VkDeviceMemory m_vertex_buffer_memory;
 	VkQueue m_queue;
 	VkPhysicalDeviceProperties	m_gpu_properties;
 	VkPhysicalDeviceMemoryProperties m_gpu_memory_properties;
@@ -81,4 +82,7 @@ private:
 	VkPipelineShaderStageCreateInfo m_pipeline_shader_stage_create_info[2];
 	VkFramebuffer * m_frame_buffers;
 	VkBuffer m_vertex_buffer;
+	VkVertexInputAttributeDescription m_vertex_input_attribute_descriptions[2];
+	VkVertexInputBindingDescription m_vertex_input_binding_description;
+	VkRenderPass m_render_pass;
 };
