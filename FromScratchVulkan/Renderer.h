@@ -53,6 +53,9 @@ private:
 	void InitVertexBuffer();
 	void DeInitVertexBuffer();
 
+	void InitPipeline();
+	void DeInitPipeline();
+
 	void SetupDebug();
 	void InitDebug();
 	void DeInitDebug();
@@ -84,5 +87,5 @@ private:
 	VkBuffer m_vertex_buffer;
 	VkVertexInputAttributeDescription m_vertex_input_attribute_descriptions[2];
 	VkVertexInputBindingDescription m_vertex_input_binding_description;
-	VkRenderPass m_render_pass;
+	VkPipeline m_graphics_pipeline;
 };

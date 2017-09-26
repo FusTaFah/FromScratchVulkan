@@ -16,6 +16,10 @@ VkBuffer Pipeline::GetUniformBuffer() {
 	return m_buffer;
 }
 
+VkPipelineLayout Pipeline::GetPipelineLayout() {
+	return m_pipeline_layout;
+}
+
 void Pipeline::InitUniformBuffer() {
 	glm::mat4 projection_matrix = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f);
 	glm::mat4 view_matrix = glm::lookAt(

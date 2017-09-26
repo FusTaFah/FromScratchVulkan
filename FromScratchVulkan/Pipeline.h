@@ -15,6 +15,7 @@ public:
 	~Pipeline();
 
 	VkBuffer GetUniformBuffer();
+	VkPipelineLayout GetPipelineLayout();
 private:
 	//methods
 	void InitUniformBuffer();
